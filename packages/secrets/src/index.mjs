@@ -32,10 +32,25 @@ export class KeychainProvider {
   usable() { return process.platform === "darwin"; }
   fetch() { return null; } // named for parity; wire `security find-generic-password` later
 }
+// Real HashiCorp Vault / OpenBao (same KV v2 API). Enclave backend. Injectable transport for tests.
 export class VaultProvider {
   name = "vault";
-  usable() { return !!process.env.AIGOVOPS_VAULT_ADDR; }
-  fetch() { return null; } // named for parity; wire the Vault/KMS API later
+  constructor({ addr = process.env.AIGOVOPS_VAULT_ADDR, token = process.env.VAULT_TOKEN, mount = "secret", field = "value", transport } = {}) {
+    this.addr = addr; this.token = token; this.mount = mount; this.field = field;
+    this.transport = transport || (async ({ url, headers }) => {
+      const res = await fetch(url, { headers });
+      let json = null; try { json = await res.json(); } catch { /* non-JSON */ }
+      return { status: res.status, json };
+    });
+  }
+  usable() { return !!(this.addr && this.token); }
+  async fetch(name) {
+    if (!this.usable()) return null;
+    const { status, json } = await this.transport({ url: `${this.addr}/v1/${this.mount}/data/${encodeURIComponent(name)}`, headers: { "X-Vault-Token": this.token } });
+    if (status !== 200) return null;
+    const data = json?.data?.data || {};      // KV v2 nests under data.data
+    return data[this.field] ?? Object.values(data)[0] ?? null;
+  }
 }
 
 // --- the broker -------------------------------------------------------------
@@ -50,11 +65,12 @@ export class SecretsProvider {
     return new SecretsProvider([new EnvProvider(), new KeychainProvider(), new VaultProvider()]);
   }
 
-  /** Resolve a raw secret by logical name. For effectors only — never logged. Raises if no backend yields. */
-  resolve(name, account = null) {
+  /** Resolve a raw secret by logical name. For effectors only — never logged. Raises if no backend yields.
+   *  Async because real backends (Vault/KMS) do network I/O; sync providers (Env) just resolve immediately. */
+  async resolve(name, account = null) {
     for (const p of this.providers) {
       if (typeof p.usable === "function" && !p.usable()) continue;
-      const val = p.fetch(name, account);
+      const val = await p.fetch(name, account);
       if (val) return val;
     }
     throw new SecretsError(`no provider resolved secret '${name}'`);
@@ -87,7 +103,7 @@ export class SecretsProvider {
   }
 
   /** Effector-facing: redeem a grant inside the privileged core → the raw secret. */
-  redeem(token, account = null) {
+  async redeem(token, account = null) {
     const g = this._grants.get(token);
     if (!g) throw new SecretsError("unknown or revoked grant");
     if (this.isExpired(g)) throw new SecretsError(`grant for '${g.scope}' expired`);

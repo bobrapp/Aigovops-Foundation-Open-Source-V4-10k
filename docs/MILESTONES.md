@@ -42,6 +42,7 @@ The full build, milestone by milestone. Every one was tested, shipped to `main`,
 | | Milestone | What shipped |
 |---|---|---|
 | **M16** | Evidence vault & DSAR | every signed decision appended to a per-tenant, **hash-chained** Beacon ledger in the live gate; role-scoped query (`/v1/evidence`), chain verify, and a **signed audit / DSAR bundle** (`/v1/evidence/bundle`); surfaced in the Studio |
+| **M17** | Depth — secrets · observability · SDK · release | real **Vault/OpenBao** secrets backend (async broker) · **OTLP** self-observability (`/v1/traces` → OTel Collector/Jaeger) · a **Python SDK** that passes cross-language conformance against a live gate · **GHCR image + release** automation (`.github/workflows/release.yml`) + `CHANGELOG.md` |
 
 ## Companion docs
 - **[BLUEPRINT.md](./BLUEPRINT.md)** — the product architecture and grounding

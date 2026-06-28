@@ -1,0 +1,15 @@
+[project]
+name = "aigovops"
+version = "4.0.0"
+description = "AiGovOps gate client — get/stay/recover to YES, from Python. Stdlib only."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+dependencies = []   # zero dependencies, by design
+
+[project.urls]
+Homepage = "https://bobrapp.github.io/Aigovops-Foundation-Open-Source-V4-10k/"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

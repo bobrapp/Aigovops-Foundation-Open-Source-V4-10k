@@ -1,0 +1,45 @@
+name: release
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+permissions: { contents: write, packages: write }
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node --test   # the same gate the whole repo lives by
+
+  image:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/aigovops:latest
+            ghcr.io/${{ github.repository_owner }}/aigovops:${{ github.ref_name }}
+
+  release:
+    needs: image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          body: |
+            AiGovOps ${{ github.ref_name }} — pull the image:
+            `docker run -p 8930:8930 ghcr.io/${{ github.repository_owner }}/aigovops:${{ github.ref_name }}`
+            Then open http://localhost:8930 (Wizard) or /studio (Console).

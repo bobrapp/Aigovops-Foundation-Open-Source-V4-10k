@@ -67,8 +67,10 @@ persistence, the rest of the modules, and packaging.
 | Persistence (ledger / baselines / policies / sessions) | `@aigovops/store` (Memory/File · Postgres/OpenSearch) | ✅ contract + impls |
 | Packaging (Docker + Helm) | Dockerfile + Helm chart | ✅ |
 | Conformance suite + reference SDK | `@aigovops/conformance` | ✅ |
-| Secrets backends (Vault / KMS) | broker ✅ + Vault/KMS | ◻️ ops |
-| Platform self-observability | OTel + Prometheus + Grafana | ◻️ ops |
+| Secrets backends (Vault / KMS) | broker + **Vault/OpenBao** adapter | ✅ (M17) |
+| Platform self-observability | **OTLP** traces → OTel Collector/Jaeger + Prometheus metrics | ✅ (M17) |
+| Multi-language SDK | JS `GateClient` + **Python** SDK (cross-lang conformance) | ✅ (M17) |
+| Release automation | GHCR image build/push + GitHub release on tag | ✅ (M17) |
 
 ## Total — the roadmap is built
 

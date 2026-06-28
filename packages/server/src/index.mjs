@@ -1,6 +1,7 @@
 // M9 — HTTP server (node:http) + the GateClient SDK. Zero-dependency.
 import { createServer } from "node:http";
 import { handle } from "./api.mjs";
+import { startSpan } from "./trace.mjs";
 
 export { handle, OPENAPI } from "./api.mjs";
 
@@ -12,7 +13,9 @@ export function serve({ port = 0 } = {}) {
     let body = null;
     try { body = raw ? JSON.parse(raw) : null; } catch { /* leave null */ }
     const url = new URL(req.url, "http://localhost");
+    const span = startSpan(`${req.method} ${url.pathname}`, { method: req.method, path: url.pathname }); // M17
     const out = await handle({ method: req.method, path: url.pathname, body, headers: req.headers, host: req.headers.host });
+    span.end(out.status < 400 ? "OK" : "ERROR");
     if (out.html != null) {
       res.writeHead(out.status, { "content-type": "text/html; charset=utf-8" });
       res.end(out.html);
