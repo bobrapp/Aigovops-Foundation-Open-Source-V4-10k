@@ -1,0 +1,8 @@
+{
+  "name": "@aigovops/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "bin": { "aigovops": "src/cli.mjs" },
+  "description": "M10 — `aigovops up`: one command from nothing to a running, TLS-secured gate. Generates the Docker Compose stack (gate + Caddy + Keycloak + OpenSearch + Prometheus) for the detected tier."
+}

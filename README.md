@@ -5,6 +5,20 @@
 
 **Live site:** https://bobrapp.github.io/Aigovops-Foundation-Open-Source-V4-10k/
 
+## Install in one command (M10)
+
+```bash
+curl -fsSL https://get.aigovops.org | sh          # full stack if Docker is present, else the gate alone
+# or, in a clone:
+node packages/cli/src/cli.mjs up --tier 4         # gate · Caddy(TLS) · Keycloak · OpenSearch · Prometheus
+node packages/cli/src/cli.mjs up --tier 1         # just the gate (zero dependencies, no Docker)
+node packages/cli/src/cli.mjs doctor              # preflight checks
+```
+
+`aigovops up` detects the tier, generates the Docker Compose stack + a Caddy auto-HTTPS config, brings it
+up, and prints the Studio / API / health URLs. See **[docs/PRODUCTIZATION.md](docs/PRODUCTIZATION.md)** for
+the full 1-click plan (wizard for policy folks · single-script for tech folks · Jeeves agent-run).
+
 An end-to-end open-source AI governance operations platform built on three
 products — **Beacon** (audit & proof), **Lantern** (monitoring & drift),
 **Umbrella** (policy & gates) — orchestrated by the **Jeeves** manager-agent.
