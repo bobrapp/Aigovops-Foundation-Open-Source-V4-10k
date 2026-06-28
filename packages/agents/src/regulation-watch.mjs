@@ -1,7 +1,7 @@
 // Tier-1 agent: Regulation-Watch.
-// Runs on a schedule, diffs the regulatory corpus against a prior snapshot, and reports what
-// changed — new requirements, retired ones, or a citation that moved. In production a feed
-// scraper would refresh the corpus first; here the diff over @aigovops/corpus is the core.
+// Runs on a schedule, refreshes the requirement set (from the built-in corpus or a live feed),
+// diffs it against a prior snapshot, and reports what changed — new requirements, retired ones,
+// or a citation that moved.
 import { REQUIREMENTS } from "../../corpus/src/index.mjs";
 
 /** A small, storable fingerprint of the corpus: each requirement's id + citation. */
@@ -9,12 +9,37 @@ export function snapshot() {
   return REQUIREMENTS.map((r) => ({ id: r.id, citation: r.citation }));
 }
 
+/** Default feed reader: GET a JSON array of {id, citation} with a timeout. */
+export async function fetchFeed(url, { timeoutMs = 8000 } = {}) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { headers: { accept: "application/json" }, signal: ctrl.signal });
+    if (!res.ok) throw new Error(`feed ${res.status}`);
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error("feed must be a JSON array of {id, citation}");
+    return data.map((r) => ({ id: r.id, citation: r.citation }));
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /**
- * @param {{previous?: Array<{id,citation}>}} [opts]  the last snapshot (omit for a baseline run)
+ * Pull the current requirement set from a live feed, then diff against the prior snapshot.
+ * @param {{previous?, url, transport?}} opts  transport(url) → [{id,citation}] (injectable for tests)
+ */
+export async function watchFeed({ previous, url, transport = fetchFeed } = {}) {
+  const current = await transport(url);
+  return watch({ previous, current });
+}
+
+/**
+ * @param {{previous?: Array<{id,citation}>, current?: Array<{id,citation}>}} [opts]
+ *   previous = the last snapshot (omit for a baseline run); current = the live set (defaults to the corpus)
  * @returns {{baseline, added[], removed[], changed[], total, digest}}
  */
-export function watch({ previous } = {}) {
-  const cur = snapshot();
+export function watch({ previous, current } = {}) {
+  const cur = current || snapshot();
   const prevMap = new Map((previous || []).map((r) => [r.id, r.citation]));
   const curMap = new Map(cur.map((r) => [r.id, r.citation]));
 

@@ -127,9 +127,11 @@ node packages/control-room/src/cli.mjs     # dashboard at http://localhost:8920 
 The core stays tiny and zero-dependency; for production scale each capability has a pluggable
 backend behind **one contract**. `selectBackends(tier)` returns local (zero-dep) implementations for
 tiers 1–3 and heavyweight shims for tiers 4–6 — **OPA** (policy), **Prometheus** (drift), **Keycloak**
-(identity), **OpenSearch** (audit), **Kong** (gateway). Each shim takes an injectable `transport`, so
-the request-building and response-mapping are unit-tested against canned responses — no live service,
-no runtime dependency added.
+(identity), **OpenSearch** (audit), **Kong** (gateway). The shims are production-hardened — per-call
+**timeout**, **retry with backoff** on 5xx/network, a typed **`AdapterError`** carrying the status,
+configurable **auth headers**, and a **`health()`** probe per backend. Each takes an injectable
+`transport`, so timeout/retry/mapping are unit-tested against canned responses — no live service, no
+runtime dependency added.
 
 ## Conversational Jeeves (agent + site manager)
 
@@ -151,8 +153,10 @@ const { report, reply } = await jeeves.converse("Our EU school runs an AI tutor 
 ## Tier-1 autonomous agents (M5)
 
 Three agents run on a schedule with no human trigger, committing signed evidence:
-**regulation-watch** (diffs the corpus), **compliance-attestor** (runs a batch through the gate and signs
-the weekly evidence bundle), **audit-bundler** (tallies the ledger into a signed auditor report). The
+**regulation-watch** (refreshes the requirement set from the corpus **or a live JSON feed** via
+`watchFeed()`, then diffs against the prior snapshot), **compliance-attestor** (runs a batch through the
+gate and signs the weekly evidence bundle), **audit-bundler** (tallies the ledger into a signed auditor
+report). The
 **scheduler** is a zero-dep cron engine that can run them locally — and **exporters** emit the same job set
 as a real Airflow DAG or GitHub Actions workflow, so they deploy to production infra without either becoming
 a dependency. Define the schedule once; run it wherever the environment allows.

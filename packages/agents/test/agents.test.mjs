@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { watch, snapshot, attest, bundle, TIER1_JOBS } from "../src/index.mjs";
+import { watch, snapshot, watchFeed, attest, bundle, TIER1_JOBS } from "../src/index.mjs";
 import { verifyReceipt } from "../../beacon/src/index.mjs";
 
 test("regulation-watch: baseline run, then detects an added + a changed requirement", () => {
@@ -15,6 +15,18 @@ test("regulation-watch: baseline run, then detects an added + a changed requirem
   assert.equal(w.baseline, false);
   assert.ok(w.added.includes(prev[0].id));
   assert.ok(w.changed.some((c) => c.id === prev[1].id && c.to === prev[1].citation));
+});
+
+test("regulation-watch: pulls from a live feed (injected transport) and diffs", async () => {
+  const previous = snapshot();
+  // The feed adds a brand-new requirement and drops an existing one.
+  const feed = async () => [
+    ...previous.filter((r) => r.id !== previous[0].id),
+    { id: "new-reg/2027", citation: "Some New Act 2027, §1" },
+  ];
+  const w = await watchFeed({ previous, url: "https://feed.example/registry.json", transport: feed });
+  assert.ok(w.added.includes("new-reg/2027"));
+  assert.ok(w.removed.includes(previous[0].id));
 });
 
 test("compliance-attestor: runs the batch and signs a verifiable bundle", () => {

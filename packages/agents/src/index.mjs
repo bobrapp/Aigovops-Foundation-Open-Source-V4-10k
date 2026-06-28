@@ -1,4 +1,4 @@
-export { watch, snapshot } from "./regulation-watch.mjs";
+export { watch, snapshot, watchFeed, fetchFeed } from "./regulation-watch.mjs";
 export { attest } from "./compliance-attestor.mjs";
 export { bundle } from "./audit-bundler.mjs";
 

@@ -1,98 +1,121 @@
-// M4 — heavyweight adapters. One contract per capability; a local (zero-dep) default
-// and a shim that maps a production backend's response into the SAME shape. Define the
-// safety contract once; enforce it with the strongest backend each environment allows.
+// M4 — heavyweight adapters, production-hardened. One contract per capability; a local
+// (zero-dep) default and a shim that maps a production backend's response into the SAME shape.
+// Define the safety contract once; enforce it with the strongest backend each environment allows.
 //
 // Every shim takes an injectable `transport({method,url,headers,body}) → {status,json}`
-// (defaults to fetch) so the request-building + response-mapping logic is unit-testable
-// against canned responses, with no live service and no runtime dependency.
+// (defaults to fetch with a timeout) so the request-building + response-mapping logic is
+// unit-testable against canned responses — no live service, no runtime dependency. Hardening:
+// per-call timeout, retry-with-backoff on 5xx/network, typed AdapterError, auth headers, health().
 import { compile } from "../../umbrella/src/index.mjs";
 import { detectDrift } from "../../lantern/src/index.mjs";
 
-export async function fetchTransport({ method = "GET", url, headers = {}, body } = {}) {
-  const res = await fetch(url, {
+export class AdapterError extends Error {
+  constructor(message, { status, adapter, cause } = {}) {
+    super(message);
+    this.name = "AdapterError";
+    this.status = status ?? null;
+    this.adapter = adapter ?? null;
+    this.cause = cause ?? null;
+  }
+}
+
+/** Default transport: fetch with an AbortController timeout. */
+export function fetchTransport({ method = "GET", url, headers = {}, body, timeoutMs = 5000 } = {}) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  return fetch(url, {
     method,
     headers: { "content-type": "application/json", ...headers },
     body: body != null ? JSON.stringify(body) : undefined,
-  });
-  let json = null;
-  try { json = await res.json(); } catch { /* non-JSON */ }
-  return { status: res.status, json };
+    signal: ctrl.signal,
+  })
+    .then(async (res) => {
+      let json = null;
+      try { json = await res.json(); } catch { /* non-JSON */ }
+      return { status: res.status, json };
+    })
+    .finally(() => clearTimeout(timer));
 }
+
+// Shared retry/backoff wrapper used by every heavyweight adapter.
+async function call(self, req) {
+  const { transport, name, retries = 2, backoffMs = 200, headers = {}, timeoutMs = 5000 } = self;
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await transport({ ...req, timeoutMs, headers: { ...headers, ...req.headers } });
+      if (res.status >= 500) throw new AdapterError(`${name} returned ${res.status}`, { status: res.status, adapter: name });
+      return res; // 2xx–4xx returned to the adapter to map
+    } catch (e) {
+      lastErr = e instanceof AdapterError ? e : new AdapterError(`${name} transport error: ${e.message}`, { adapter: name, cause: e });
+      if (attempt < retries && backoffMs) await new Promise((r) => setTimeout(r, backoffMs * (attempt + 1)));
+    }
+  }
+  throw lastErr;
+}
+
+const opts = (o) => ({ retries: 2, backoffMs: 200, timeoutMs: 5000, headers: {}, transport: fetchTransport, ...o });
 
 // --- Policy (Umbrella backend) ----------------------------------------------
 export class LocalPolicy {
   name = "local";
-  async evaluate({ policy, payload }) {
-    return compile(policy).evaluate(payload ?? {});
-  }
+  async evaluate({ policy, payload }) { return compile(policy).evaluate(payload ?? {}); }
+  async health() { return true; }
 }
 export class OpaPolicy {
-  // Open Policy Agent. Maps OPA's { result: { allow, violations } } → our gate shape.
   name = "opa";
-  constructor({ baseUrl, pkg = "aigovops/authz", transport = fetchTransport } = {}) {
-    Object.assign(this, { baseUrl, pkg, transport });
-  }
+  constructor(o = {}) { Object.assign(this, opts(o), { pkg: o.pkg || "aigovops/authz" }); }
   async evaluate({ payload }) {
-    const { status, json } = await this.transport({
-      method: "POST",
-      url: `${this.baseUrl}/v1/data/${this.pkg}`,
-      body: { input: payload ?? {} },
-    });
-    if (status !== 200 || !json) throw new Error(`OPA ${status}`);
+    const { status, json } = await call(this, { method: "POST", url: `${this.baseUrl}/v1/data/${this.pkg}`, body: { input: payload ?? {} } });
+    if (status !== 200 || !json) throw new AdapterError(`OPA eval ${status}`, { status, adapter: this.name });
     const r = json.result || {};
     const violations = (r.violations || []).map((v) => (typeof v === "string" ? { path: v, message: v } : v));
-    const ok = r.allow === true && violations.length === 0;
-    return { status: ok ? "PASS" : "FAIL", violations };
+    return { status: r.allow === true && violations.length === 0 ? "PASS" : "FAIL", violations };
   }
+  async health() { return (await call(this, { url: `${this.baseUrl}/health` })).status === 200; }
 }
 
 // --- Drift (Lantern backend) ------------------------------------------------
 export class LocalDrift {
   name = "local";
-  async check({ baseline, current, tolerance }) {
-    return detectDrift({ baseline, current, tolerance });
-  }
+  async check({ baseline, current, tolerance }) { return detectDrift({ baseline, current, tolerance }); }
+  async health() { return true; }
 }
 export class PrometheusDrift {
-  // Queries a PromQL metric and compares its value to a baseline within tolerance.
   name = "prometheus";
-  constructor({ baseUrl, transport = fetchTransport } = {}) {
-    Object.assign(this, { baseUrl, transport });
-  }
+  constructor(o = {}) { Object.assign(this, opts(o)); }
   async check({ query, baseline, tolerance = 0 }) {
-    const { status, json } = await this.transport({ url: `${this.baseUrl}/api/v1/query?query=${encodeURIComponent(query)}` });
-    if (status !== 200 || json?.status !== "success") throw new Error(`Prometheus ${status}`);
+    const { status, json } = await call(this, { url: `${this.baseUrl}/api/v1/query?query=${encodeURIComponent(query)}` });
+    if (status !== 200 || json?.status !== "success") throw new AdapterError(`Prometheus query ${status}`, { status, adapter: this.name });
     const current = Number(json.data?.result?.[0]?.value?.[1]);
-    const denom = Math.max(Math.abs(baseline), 1e-9);
-    const drifted = Math.abs(current - baseline) / denom > tolerance;
+    const drifted = Math.abs(current - baseline) / Math.max(Math.abs(baseline), 1e-9) > tolerance;
     return { status: drifted ? "FAIL" : "PASS", current, baseline, drift: drifted ? [{ query, from: baseline, to: current }] : [] };
   }
+  async health() { return (await call(this, { url: `${this.baseUrl}/-/healthy` })).status === 200; }
 }
 
 // --- Identity (oversight roles) ---------------------------------------------
 export class LocalIdentity {
   name = "local";
-  constructor({ roles = {} } = {}) { this.roles = roles; } // { token: [roleNames] }
+  constructor({ roles = {} } = {}) { this.roles = roles; }
   async resolveRoles(token) { return this.roles[token] || []; }
+  async health() { return true; }
 }
 export class KeycloakIdentity {
-  // Introspects an OIDC token and maps realm roles → our five roles via roleMap.
   name = "keycloak";
-  constructor({ baseUrl, realm = "aigovops", clientId, clientSecret, roleMap = {}, transport = fetchTransport } = {}) {
-    Object.assign(this, { baseUrl, realm, clientId, clientSecret, roleMap, transport });
-  }
+  constructor(o = {}) { Object.assign(this, opts(o), { realm: o.realm || "aigovops", clientId: o.clientId, clientSecret: o.clientSecret, roleMap: o.roleMap || {} }); }
   async resolveRoles(token) {
-    const { status, json } = await this.transport({
+    const { status, json } = await call(this, {
       method: "POST",
       url: `${this.baseUrl}/realms/${this.realm}/protocol/openid-connect/token/introspect`,
       headers: { "content-type": "application/x-www-form-urlencoded" },
       body: { token, client_id: this.clientId, client_secret: this.clientSecret },
     });
-    if (status !== 200 || !json) throw new Error(`Keycloak ${status}`);
+    if (status !== 200 || !json) throw new AdapterError(`Keycloak introspect ${status}`, { status, adapter: this.name });
     if (!json.active) return [];
-    const realmRoles = json.realm_access?.roles || [];
-    return [...new Set(realmRoles.map((r) => this.roleMap[r]).filter(Boolean))];
+    return [...new Set((json.realm_access?.roles || []).map((r) => this.roleMap[r]).filter(Boolean))];
   }
+  async health() { return (await call(this, { url: `${this.baseUrl}/realms/${this.realm}` })).status === 200; }
 }
 
 // --- Audit store (Beacon ledger sink) ---------------------------------------
@@ -101,33 +124,31 @@ export class LocalAuditStore {
   constructor() { this.docs = []; }
   async index(receipt) { this.docs.push(receipt); return { ok: true }; }
   async search(predicate = () => true) { return this.docs.filter(predicate); }
+  async health() { return true; }
 }
 export class OpenSearchStore {
   name = "opensearch";
-  constructor({ baseUrl, index = "aigovops-evidence", transport = fetchTransport } = {}) {
-    this.baseUrl = baseUrl;
-    this.indexName = index; // not `this.index` — that would clobber the index() method
-    this.transport = transport;
-  }
+  constructor(o = {}) { Object.assign(this, opts(o), { indexName: o.index || "aigovops-evidence" }); }
   async index(receipt) {
-    const { status } = await this.transport({ method: "POST", url: `${this.baseUrl}/${this.indexName}/_doc`, body: receipt });
-    if (status >= 300) throw new Error(`OpenSearch index ${status}`);
+    const { status } = await call(this, { method: "POST", url: `${this.baseUrl}/${this.indexName}/_doc`, body: receipt });
+    if (status >= 300) throw new AdapterError(`OpenSearch index ${status}`, { status, adapter: this.name });
     return { ok: true };
   }
   async search(query) {
-    const { status, json } = await this.transport({ method: "POST", url: `${this.baseUrl}/${this.indexName}/_search`, body: query });
-    if (status !== 200 || !json) throw new Error(`OpenSearch search ${status}`);
+    const { status, json } = await call(this, { method: "POST", url: `${this.baseUrl}/${this.indexName}/_search`, body: query });
+    if (status !== 200 || !json) throw new AdapterError(`OpenSearch search ${status}`, { status, adapter: this.name });
     return (json.hits?.hits || []).map((h) => h._source);
   }
+  async health() { return (await call(this, { url: `${this.baseUrl}/_cluster/health` })).status === 200; }
 }
 
 // --- Gateway (Layer-3 chokepoint) -------------------------------------------
 export class LocalGateway {
   name = "local";
   async route({ service, upstream }) { return { mode: "in-process", service, upstream, plugin: "aigovops-gate" }; }
+  async health() { return true; }
 }
 export class KongGateway {
-  // Produces declarative Kong config routing model calls through the gate plugin.
   name = "kong";
   async route({ service, upstream, gateUrl }) {
     return {
@@ -136,6 +157,7 @@ export class KongGateway {
         plugins: [{ name: "pre-function", config: { access: [`-- route every call through ${gateUrl}`] } }] }],
     };
   }
+  async health() { return true; }
 }
 
 // --- tier → backend selection (mirrors install's tier map) ------------------

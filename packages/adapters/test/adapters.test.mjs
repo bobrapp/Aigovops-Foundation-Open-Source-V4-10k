@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   LocalPolicy, OpaPolicy, LocalDrift, PrometheusDrift,
-  KeycloakIdentity, OpenSearchStore, KongGateway, selectBackends,
+  KeycloakIdentity, OpenSearchStore, KongGateway, selectBackends, AdapterError,
 } from "../src/index.mjs";
 
 // A fake transport returns canned responses and records the request.
@@ -67,4 +67,35 @@ test("selectBackends picks local for tiers 1-3 and heavyweight for 4-6", () => {
   assert.equal(selectBackends(2).policy.name, "local");
   assert.equal(selectBackends(5, { opa: { baseUrl: "x" } }).policy.name, "opa");
   assert.equal(selectBackends(5, { keycloak: { baseUrl: "x" } }).identity.name, "keycloak");
+});
+
+// --- hardening: retry, errors, auth, health ---------------------------------
+test("a 5xx is retried with backoff, then succeeds", async () => {
+  let n = 0;
+  const t = fake(() => (++n <= 2
+    ? { status: 503, json: null }
+    : { status: 200, json: { result: { allow: true, violations: [] } } }));
+  const opa = new OpaPolicy({ baseUrl: "x", transport: t.transport, backoffMs: 0 });
+  const r = await opa.evaluate({ payload: {} });
+  assert.equal(r.status, "PASS");
+  assert.equal(n, 3); // 2 failures + 1 success
+});
+
+test("exhausted retries throw a typed AdapterError carrying the status", async () => {
+  const t = fake(() => ({ status: 503, json: null }));
+  const opa = new OpaPolicy({ baseUrl: "x", transport: t.transport, retries: 1, backoffMs: 0 });
+  await assert.rejects(() => opa.evaluate({ payload: {} }), (e) => e instanceof AdapterError && e.status === 503 && e.adapter === "opa");
+  assert.equal(t.calls.length, 2); // initial + 1 retry
+});
+
+test("auth headers are sent on every request", async () => {
+  const t = fake(() => ({ status: 200, json: { result: { allow: true, violations: [] } } }));
+  const opa = new OpaPolicy({ baseUrl: "x", transport: t.transport, headers: { authorization: "Bearer tok" } });
+  await opa.evaluate({ payload: {} });
+  assert.equal(t.calls[0].headers.authorization, "Bearer tok");
+});
+
+test("health() pings the backend's health endpoint", async () => {
+  const t = fake((req) => ({ status: req.url.endsWith("/health") ? 200 : 404, json: {} }));
+  assert.equal(await new OpaPolicy({ baseUrl: "http://opa", transport: t.transport }).health(), true);
 });
