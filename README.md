@@ -11,11 +11,15 @@ products — **Beacon** (audit & proof), **Lantern** (monitoring & drift),
 
 ## Products
 
-| Product | Role | Gate Logic |
+| Product | Role | Implemented today |
 |---------|------|------------|
-| **Beacon** | Listens, identifies models/patterns, proposes heuristics, signs evidence receipts | PASS / FAIL — never MAYBE |
-| **Lantern** | Semantic diff, drift detection, escalation, change monitoring | PASS / FAIL — never MAYBE |
-| **Umbrella** | Policy compiler, code gates, automated enforcement, framework profiles | PASS / FAIL — never MAYBE |
+| **Beacon** | Audit & proof — signs evidence receipts | ed25519 receipts over a SHA-256 canonical hash; verifies **offline** |
+| **Lantern** | Monitoring & drift — semantic diff, escalation | structural + numeric drift vs a baseline, with tolerance + escalation levels |
+| **Umbrella** | Policy & gates — policy compiler, framework profiles | declarative policy → deterministic evaluator; 8 operators; named profiles |
+| **Jeeves** | Manager-agent — orchestration | runs Umbrella → Lantern → Beacon and signs the verdict end to end |
+
+All four are real, zero-dependency Node, and covered by tests (`node --test`). Each emits the
+same `{ status, mitigation }` gate shape — PASS / FAIL, never MAYBE.
 
 ## Three Laws of Gates
 
@@ -26,13 +30,15 @@ products — **Beacon** (audit & proof), **Lantern** (monitoring & drift),
 ## Structure
 
 ```
-shared/            ← the Yes-Gate: PASS / FAIL, never MAYBE (single source of gate logic)
+shared/gate.mjs          ← the Yes-Gate: PASS / FAIL, never MAYBE (single source)
 packages/
-  beacon/          ← audit & proof — signs evidence receipts
-  lantern/         ← monitoring & drift — semantic diff, escalation
-  umbrella/        ← policy & gates — policy compiler, framework profiles
-jeeves/            ← manager-agent — orchestrates the three products
-.github/workflows/ ← ci.yml (node --test)
+  beacon/  src/sign.mjs   ← ed25519 signing, canonical hashing, offline verify
+  lantern/ src/diff.mjs   ← structural + numeric drift engine
+  umbrella/src/compile.mjs← policy compiler + evaluator + framework profiles
+jeeves/  src/index.mjs    ← orchestrates Umbrella → Lantern → Beacon
+docs/index.html           ← landing page (GitHub Pages) with a live Yes-Gate demo
+.github/workflows/        ← ci.yml (node --test) · jekyll-gh-pages.yml (Pages)
+INTEROP.md                ← Apache-2.0 / 10k★ projects that back each component
 ```
 
 ## Quick start
@@ -40,9 +46,19 @@ jeeves/            ← manager-agent — orchestrates the three products
 ```bash
 git clone https://github.com/bobrapp/Aigovops-Foundation-Open-Source-V4-10k.git
 cd Aigovops-Foundation-Open-Source-V4-10k
-node --test          # run the gate tests (Node 20+, zero dependencies)
-node jeeves/src/index.mjs   # see Jeeves run all three gates
+node --test                       # run all gate tests (Node 20+, zero dependencies)
+
+node jeeves/src/index.mjs         # full pipeline → a signed, verified receipt
+node packages/beacon/src/index.mjs    # sign + verify an evidence receipt
+node packages/lantern/src/index.mjs   # detect drift beyond tolerance
+node packages/umbrella/src/index.mjs  # evaluate the baseline policy profile
 ```
+
+## Backing it with proven open source
+
+The core stays tiny and auditable on purpose. For production scale, each component has a
+mature Apache-2.0 backend — see **[INTEROP.md](./INTEROP.md)** (OPA, Prometheus, MLflow,
+Trivy, Airflow, Keycloak, Casbin, Great Expectations, …), with live-verified star counts.
 
 ## Governance principle
 

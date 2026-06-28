@@ -115,6 +115,7 @@
     <a href="#products">Products</a>
     <a href="#laws">Three Laws</a>
     <a href="#try">Try the Gate</a>
+    <a href="#interop">Open Source</a>
     <a href="https://github.com/bobrapp/Aigovops-Foundation-Open-Source-V4-10k">GitHub ↗</a>
   </nav>
 </div></header>
@@ -177,15 +178,28 @@
       <div class="verdict" id="verdict"></div>
       <ul class="mit" id="mit"></ul>
     </div>
-    <p class="sub" style="margin-top:20px">Same thing in Node, zero dependencies:</p>
+    <p class="sub" style="margin-top:20px">The real pipeline in Node, zero dependencies — policy, then drift, then a signed proof:</p>
     <pre><span class="tag">import</span> { orchestrate } <span class="tag">from</span> <span style="color:var(--green)">"@aigovops/jeeves"</span>;
 
 orchestrate({
-  beacon:   { configured: <b style="color:var(--green)">true</b>, payload: <span style="color:var(--green)">"evidence"</span> },
-  lantern:  { configured: <b style="color:var(--green)">true</b>, payload: <span style="color:var(--green)">"snapshot"</span> },
-  umbrella: { configured: <b style="color:var(--green)">true</b>, payload: <span style="color:var(--green)">"policy"</span> },
+  umbrella: { profile: <span style="color:var(--green)">"baseline"</span>,
+              payload: { model: <span style="color:var(--green)">"claude-opus-4-8"</span>, humanApproved: <b style="color:var(--green)">true</b> } },
+  lantern:  { baseline: { cost: 100 }, current: { cost: 102 }, tolerance: 0.05 },
 });
-<span style="color:var(--muted)">// → { status: "PASS", gates: [ … ] }   no maybes</span></pre>
+<span style="color:var(--muted)">// → { status: "PASS", receipt: { …ed25519… } }   signed, verifiable offline, no maybes</span></pre>
+  </section>
+
+  <section id="interop">
+    <div class="kicker">Standing on proven open source</div>
+    <h2>A tiny core, production-grade backends</h2>
+    <p class="sub">The core stays small and auditable on purpose. For scale, each component maps to a mature <b style="color:var(--ink)">Apache-2.0</b> project (10k+ stars, verified live). Define the contract once; enforce it with the strongest backend each environment allows.</p>
+    <div class="grid">
+      <div class="card"><div class="role">Umbrella · policy</div><h3>OPA · Casbin · Trivy</h3><p>Rego policy engine, embeddable authz, and ready-made code/dependency gates.</p></div>
+      <div class="card"><div class="role">Lantern · drift</div><h3>Prometheus · Great&nbsp;Expectations</h3><p>Time-series monitoring and declarative data expectations for drift + escalation.</p></div>
+      <div class="card"><div class="role">Beacon · proof</div><h3>MLflow · Sigstore</h3><p>Model system-of-record to sign over; the production form of signed receipts.</p></div>
+      <div class="card"><div class="role">Jeeves · orchestration</div><h3>Airflow · Argo · Keycloak</h3><p>DAG/workflow engines for the pipeline; identity to scope every view.</p></div>
+    </div>
+    <p class="sub" style="margin-top:18px">Full mapping with live-verified star counts: <a href="https://github.com/bobrapp/Aigovops-Foundation-Open-Source-V4-10k/blob/main/INTEROP.md">INTEROP.md ↗</a></p>
   </section>
 
 </main>

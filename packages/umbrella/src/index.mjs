@@ -1,15 +1,35 @@
 import { gate } from "../../../shared/gate.mjs";
+import { compile, profile, PolicyError } from "./compile.mjs";
 
-// Umbrella — Policy & gates — policy compiler, code gates, framework profiles.
+export { compile, profile, PolicyError, OPERATORS, PROFILES } from "./compile.mjs";
+
+// Umbrella — Policy & gates. Compiles a declarative policy (or a named profile),
+// evaluates the payload against it, and gates on the violations.
 export function compilePolicy(input = {}) {
-  // Stub gate. Replace checks with real umbrella controls.
-  return gate("umbrella", [
-    { id: "umbrella:configured", pass: input.configured === true, fix: "Configure Umbrella before running its gate." },
-    { id: "umbrella:input-present", pass: input.payload != null, fix: "Provide an input payload for Umbrella to evaluate." },
-  ]);
+  const { policy, profile: profileName, payload } = input;
+
+  let compiled;
+  try {
+    compiled = profileName ? profile(profileName) : compile(policy);
+  } catch (e) {
+    if (e instanceof PolicyError) {
+      return gate("umbrella", [{ id: "umbrella:policy-compiles", pass: false, fix: `Fix the policy: ${e.message}` }]);
+    }
+    throw e;
+  }
+
+  const { violations } = compiled.evaluate(payload ?? {});
+  const result = gate(
+    "umbrella",
+    violations.length === 0
+      ? [{ id: `umbrella:${compiled.name}:satisfied`, pass: true }]
+      : violations.map((v) => ({ id: `umbrella:${v.path}`, pass: false, fix: v.message })),
+  );
+  return { ...result, policy: compiled.name, violations };
 }
 
-// Demo when run directly.
+// Demo when run directly: the baseline profile against a non-compliant payload.
 if (import.meta.url === `file://${process.argv[1]}`) {
-  console.log(JSON.stringify(compilePolicy({ configured: true, payload: "demo" }), null, 2));
+  const out = compilePolicy({ profile: "baseline", payload: { model: "gpt-4", humanApproved: false } });
+  console.log(JSON.stringify(out, null, 2));
 }

@@ -1,18 +1,29 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { orchestrate } from "../src/index.mjs";
+import { orchestrate, verifyReceipt } from "../src/index.mjs";
 
-test("orchestrate PASSes when every product gate passes", () => {
-  const r = orchestrate({
-    beacon: { configured: true, payload: "a" },
-    lantern: { configured: true, payload: "b" },
-    umbrella: { configured: true, payload: "c" },
-  });
+const GOOD = {
+  umbrella: { profile: "baseline", payload: { model: "claude-opus-4-8", humanApproved: true } },
+  lantern: { baseline: { cost: 100 }, current: { cost: 102 }, tolerance: 0.05 },
+};
+
+test("clean run PASSes and produces a verifiable receipt", () => {
+  const r = orchestrate(GOOD);
   assert.equal(r.status, "PASS");
-  assert.equal(r.gates.length, 3);
+  assert.equal(r.gates.length, 3); // umbrella, lantern, beacon
+  assert.ok(r.receipt && r.publicKey);
+  assert.equal(verifyReceipt(r.receipt, r.publicKey), true);
 });
 
-test("orchestrate FAILs if any product gate fails", () => {
-  const r = orchestrate({ beacon: { configured: true, payload: "a" } });
+test("a policy violation FAILs the pipeline — and signs nothing", () => {
+  const r = orchestrate({ ...GOOD, umbrella: { profile: "baseline", payload: { model: "gpt-4", humanApproved: false } } });
   assert.equal(r.status, "FAIL");
+  assert.equal(r.receipt, undefined);
+  assert.ok(r.mitigation.length > 0);
+});
+
+test("drift beyond tolerance FAILs the pipeline", () => {
+  const r = orchestrate({ ...GOOD, lantern: { baseline: { cost: 100 }, current: { cost: 200 }, tolerance: 0.05 } });
+  assert.equal(r.status, "FAIL");
+  assert.equal(r.receipt, undefined);
 });
