@@ -1,7 +1,7 @@
 # AiGovOps v4 — Milestones
 
 The full build, milestone by milestone. Every one was tested, shipped to `main`, and verified
-(CI + Pages green). End state: **28 workspaces · 174 tests · zero runtime dependencies · MIT · public**.
+(CI + Pages green). End state: **28 workspaces · 180 tests · zero runtime dependencies · MIT · public**.
 
 ## Phase 0 — Foundation
 | | What shipped |
@@ -45,6 +45,7 @@ The full build, milestone by milestone. Every one was tested, shipped to `main`,
 | **M17** | Depth — secrets · observability · SDK · release | real **Vault/OpenBao** secrets backend (async broker) · **OTLP** self-observability (`/v1/traces` → OTel Collector/Jaeger) · a **Python SDK** that passes cross-language conformance against a live gate · **GHCR image + release** automation (`.github/workflows/release.yml`) + `CHANGELOG.md` |
 | **M18** | Close the last module gaps | authored gates → **real OPA Rego** (`toRego`) · Beacon **Fluentd** log-shipping (metadata-only) · Lantern **`DriftHistory`** (per-field series + stability) · a **Grafana dashboard** for `/v1/metrics`. Every ROADMAP ◻️ is now closed |
 | **M19** | The Ops agent (Jeeves-managed) | `@aigovops/ops-agent` — the remaining **ops** work (publish · observability · provision · deploy · desktop · billing · npm · DNS · go-live) as a state machine that **auto-runs everything reversible and stops at every irreversible human gate**. Registered as a Jeeves sub-agent (`ops-runner`); `aigovops-ops` CLI. The irreversibility boundary, applied to ops |
+| **M20** | Agent-driven runbook + 1Password | `OpsRunbook` resolves every credential from **1Password** (`OnePasswordProvider`, Connect API) **through the governed broker** (scoped, expiring, single-use grants). Credential-entry is no longer manual — a secret is stored once, read every run. The ship runbook drops from **7 human gates → 4** (only the irreversible/outward ones). The system rule: automate all you can, very little manual. See [RUNBOOK.md](./RUNBOOK.md) |
 
 ## Companion docs
 - **[BLUEPRINT.md](./BLUEPRINT.md)** — the product architecture and grounding

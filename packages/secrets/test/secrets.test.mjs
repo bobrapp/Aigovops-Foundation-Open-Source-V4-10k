@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { SecretsProvider, EnvProvider, VaultProvider, SecretsError, mask } from "../src/index.mjs";
+import { SecretsProvider, EnvProvider, VaultProvider, OnePasswordProvider, SecretsError, mask } from "../src/index.mjs";
 
 test("mask never reveals a raw secret", () => {
   assert.equal(mask("supersecretvalue"), "su…ue");
@@ -51,4 +51,20 @@ test("VaultProvider reads a KV v2 secret (Vault / OpenBao, injected transport)",
   const b = new SecretsProvider([vault]);
   const g = b.issue("github-deploy", 60, "gate");
   assert.equal(await b.redeem(g.token), "s3cr3t");
+});
+
+test("OnePasswordProvider resolves a credential by item title via the Connect API", async () => {
+  const transport = async ({ url }) => {
+    if (url.includes("/items?filter=")) return { status: 200, json: [{ id: "abc123", title: "stripe-live-key" }] };
+    if (url.endsWith("/items/abc123")) return { status: 200, json: { id: "abc123", fields: [{ label: "notes", value: "x" }, { label: "credential", value: "sk_live_123" }] } };
+    return { status: 404, json: null };
+  };
+  const op = new OnePasswordProvider({ host: "https://op-connect:8080", token: "t", vault: "v1", transport });
+  assert.equal(op.usable(), true);
+  assert.equal(await op.fetch("stripe-live-key"), "sk_live_123");
+
+  // governed path: the agent mints a scoped grant and redeems it through the broker
+  const b = new SecretsProvider([op]);
+  const grant = b.issue("stripe-live-key", 60, "ops-agent");
+  assert.equal(await b.redeem(grant.token), "sk_live_123");
 });

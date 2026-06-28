@@ -53,6 +53,33 @@ export class VaultProvider {
   }
 }
 
+// 1Password — the team credential store. Uses the Connect REST API (HTTP, token-auth): no `op` CLI,
+// no 1Password app, no per-step paste. A human stores a credential in the vault ONCE; the agent then
+// resolves it at runtime by item title. Injectable transport for tests.
+export class OnePasswordProvider {
+  name = "1password";
+  constructor({ host = process.env.OP_CONNECT_HOST, token = process.env.OP_CONNECT_TOKEN, vault = process.env.OP_VAULT, field = "credential", transport } = {}) {
+    this.host = host; this.token = token; this.vault = vault; this.field = field;
+    this.transport = transport || (async ({ url, headers }) => {
+      const res = await fetch(url, { headers });
+      let json = null; try { json = await res.json(); } catch { /* non-JSON */ }
+      return { status: res.status, json };
+    });
+  }
+  usable() { return !!(this.host && this.token && this.vault); }
+  _get(path) { return this.transport({ url: `${this.host}${path}`, headers: { Authorization: `Bearer ${this.token}` } }); }
+  async fetch(name) {
+    if (!this.usable()) return null;
+    const list = await this._get(`/v1/vaults/${this.vault}/items?filter=${encodeURIComponent(`title eq "${name}"`)}`);
+    const summary = (list.json || [])[0];
+    if (!summary) return null;
+    const full = await this._get(`/v1/vaults/${this.vault}/items/${summary.id}`);
+    const fields = full.json?.fields || [];
+    const f = fields.find((x) => x.label === this.field) || fields.find((x) => x.purpose === "PASSWORD") || fields.find((x) => x.value);
+    return f?.value ?? null;
+  }
+}
+
 // --- the broker -------------------------------------------------------------
 export class SecretsProvider {
   constructor(providers, opts = {}) {
@@ -62,7 +89,9 @@ export class SecretsProvider {
   }
 
   static default() {
-    return new SecretsProvider([new EnvProvider(), new KeychainProvider(), new VaultProvider()]);
+    // Resolution order: env (lab) → 1Password (team) → Vault/OpenBao (enclave) → keychain. Each is
+    // inert until configured, so the same broker works everywhere with no code change.
+    return new SecretsProvider([new EnvProvider(), new OnePasswordProvider(), new VaultProvider(), new KeychainProvider()]);
   }
 
   /** Resolve a raw secret by logical name. For effectors only — never logged. Raises if no backend yields.
