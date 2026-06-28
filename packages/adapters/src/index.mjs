@@ -173,6 +173,36 @@ export class KongGateway {
   async health() { return true; }
 }
 
+// --- Security gates (parse scanner output → gate shape) ---------------------
+// Scanners run in CI and emit JSON; these turn that report into PASS/FAIL on a severity threshold.
+export class TrivyGate {
+  name = "trivy";
+  constructor({ failOn = ["CRITICAL", "HIGH"] } = {}) { this.failOn = failOn; }
+  evaluate(report = {}) {
+    const vulns = (report.Results || []).flatMap((r) => r.Vulnerabilities || []);
+    const blocking = vulns.filter((v) => this.failOn.includes(v.Severity));
+    return { status: blocking.length ? "FAIL" : "PASS", findings: blocking.length, total: vulns.length, mitigation: blocking.length ? [`Resolve ${blocking.length} ${this.failOn.join("/")} vulnerabilities.`] : [] };
+  }
+}
+export class ZapGate {
+  name = "zap";
+  constructor({ failOnRisk = 3 } = {}) { this.failOnRisk = failOnRisk; } // ZAP riskcode: 3=High, 2=Medium
+  evaluate(report = {}) {
+    const alerts = (report.site || []).flatMap((s) => s.alerts || []);
+    const blocking = alerts.filter((a) => Number(a.riskcode) >= this.failOnRisk);
+    return { status: blocking.length ? "FAIL" : "PASS", findings: blocking.length, total: alerts.length };
+  }
+}
+export class SemgrepGate {
+  name = "semgrep";
+  constructor({ failOn = ["ERROR"] } = {}) { this.failOn = failOn; }
+  evaluate(report = {}) {
+    const results = report.results || [];
+    const blocking = results.filter((r) => this.failOn.includes(r.extra?.severity));
+    return { status: blocking.length ? "FAIL" : "PASS", findings: blocking.length, total: results.length };
+  }
+}
+
 // --- tier → backend selection (mirrors install's tier map) ------------------
 export function selectBackends(tier, endpoints = {}) {
   const heavy = tier >= 4;

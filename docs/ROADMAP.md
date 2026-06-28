@@ -46,15 +46,15 @@ persistence, the rest of the modules, and packaging.
 | Continuous monitor loop + alerting | scheduler ✅ + **Alertmanager** | ✅ Monitor + Alertmanager routing |
 | Baseline + drift-history store | OpenSearch / Prometheus | ◻️ |
 
-### ☂️ Umbrella — policy & gates  · **M8**
+### ☂️ Umbrella — policy & gates  · **M8 ✅ (this release)**
 | Capability | Module | Status |
 |---|---|---|
 | Heavyweight policy engine (Rego) | **OPA** | ✅ adapter · Rego library ◻️ |
-| Authorization (RBAC / ABAC) | **Casbin** | ◻️ |
-| Security gates (scan / SAST / DAST) | **Trivy** · **OWASP ZAP** · Semgrep | ◻️ |
-| Framework profile library (EU AI Act, GDPR, HIPAA…) | corpus ✅ | ◻️ compile profiles |
-| Kubernetes enforcement | **Kyverno** / Gatekeeper | ◻️ |
-| Policy lifecycle (version / simulate / canary) | side-by-side ✅ | ◻️ rollout |
+| Authorization (RBAC / ABAC) | **Casbin**-compatible `Enforcer` | ✅ |
+| Security gates (scan / SAST / DAST) | **Trivy** · **OWASP ZAP** · **Semgrep** | ✅ |
+| Framework profile library (EU AI Act, GDPR, HIPAA…) | corpus ✅ → `compileFrameworkProfile` | ✅ |
+| Kubernetes enforcement | **Kyverno** | ✅ emitter |
+| Policy lifecycle (version / simulate / canary) | `PolicyRegistry` | ✅ |
 
 ### 🧩 Platform — what makes all three one solution  · **M9**
 | Concern | Module | Status |
@@ -73,7 +73,7 @@ persistence, the rest of the modules, and packaging.
 
 - **~20 open-source modules**, all Apache-2.0 / 10k★ (see `INTEROP.md`). The **primary adapter for each
   product is already built** (OPA → Umbrella, Prometheus → Lantern, OpenSearch → Beacon).
-- **Effort remaining (rough):** M6 ✅ · M7 ✅ · M8 ~4–5 wk · M9 ~6–8 wk → **~10–13 engineer-weeks**,
+- **Effort remaining (rough):** M6 ✅ · M7 ✅ · M8 ✅ · M9 ~6–8 wk → **~6–8 engineer-weeks** (the platform layer),
   heavily parallelizable (M7/M8 are independent) and agent-accelerated. End state ≈ **30 packages**, same
   zero-core-dependency discipline, every external module swappable.
 

@@ -2,6 +2,11 @@ import { gate } from "../../../shared/gate.mjs";
 import { compile, profile, PolicyError } from "./compile.mjs";
 
 export { compile, profile, PolicyError, OPERATORS, PROFILES } from "./compile.mjs";
+// Umbrella v-next (M8)
+export { compileFrameworkProfile, availableProfiles } from "./profiles.mjs";
+export { Enforcer } from "./authz.mjs";
+export { toKyvernoPolicy } from "./kyverno.mjs";
+export { PolicyRegistry } from "./lifecycle.mjs";
 
 // Umbrella — Policy & gates. Compiles a declarative policy (or a named profile),
 // evaluates the payload against it, and gates on the violations.

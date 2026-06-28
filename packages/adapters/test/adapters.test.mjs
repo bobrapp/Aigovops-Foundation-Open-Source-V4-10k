@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   LocalPolicy, OpaPolicy, LocalDrift, PrometheusDrift, JaegerTraces,
   KeycloakIdentity, OpenSearchStore, KongGateway, selectBackends, AdapterError,
+  TrivyGate, ZapGate, SemgrepGate,
 } from "../src/index.mjs";
 
 // A fake transport returns canned responses and records the request.
@@ -67,6 +68,17 @@ test("OpenSearchStore indexes and searches", async () => {
   const store = new OpenSearchStore({ baseUrl: "http://os", transport: t.transport });
   assert.deepEqual(await store.index({ id: "r1" }), { ok: true });
   assert.deepEqual(await store.search({ query: { match_all: {} } }), [{ id: "r1" }]);
+});
+
+test("security gates map scanner reports to PASS/FAIL on severity", () => {
+  assert.equal(new TrivyGate().evaluate({ Results: [{ Vulnerabilities: [{ Severity: "LOW" }] }] }).status, "PASS");
+  const trivy = new TrivyGate().evaluate({ Results: [{ Vulnerabilities: [{ Severity: "CRITICAL" }, { Severity: "LOW" }] }] });
+  assert.equal(trivy.status, "FAIL");
+  assert.equal(trivy.findings, 1);
+  assert.equal(new ZapGate().evaluate({ site: [{ alerts: [{ riskcode: "3" }] }] }).status, "FAIL");
+  assert.equal(new ZapGate().evaluate({ site: [{ alerts: [{ riskcode: "1" }] }] }).status, "PASS");
+  assert.equal(new SemgrepGate().evaluate({ results: [{ extra: { severity: "ERROR" } }] }).status, "FAIL");
+  assert.equal(new SemgrepGate().evaluate({ results: [{ extra: { severity: "INFO" } }] }).status, "PASS");
 });
 
 test("KongGateway emits declarative routing config", async () => {

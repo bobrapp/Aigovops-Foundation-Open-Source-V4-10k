@@ -33,3 +33,17 @@ compilePolicy({
 - A malformed policy fails the compile gate — it never throws to the caller.
 
 Run the live demo: `node packages/umbrella/src/index.mjs`
+
+## v-next (M8)
+
+- **Framework profiles** (`compileFrameworkProfile`) — compiles a runnable policy for a regulation
+  (e.g. `"EU AI Act"`) from the corpus + a context, carrying every controlling citation. The bridge
+  from "what the law requires" to "the gate that enforces it".
+- **Authorization** (`Enforcer`) — Casbin-compatible RBAC: (subject, object, action) policies, role
+  inheritance, `*` wildcards. `node-casbin` drops in behind the same `enforce()`.
+- **Kubernetes enforcement** (`toKyvernoPolicy`) — projects an Umbrella policy onto a **Kyverno**
+  `ClusterPolicy` so the same rules enforce at the cluster admission boundary.
+- **Policy lifecycle** (`PolicyRegistry`) — append-only versioning, `simulate()` a version over
+  payloads, and `canary()` a candidate against the current version to see exactly where they diverge.
+- **Security gates** — `TrivyGate` / `ZapGate` / `SemgrepGate` (in `@aigovops/adapters`) turn scanner
+  reports into PASS/FAIL on a severity threshold.
