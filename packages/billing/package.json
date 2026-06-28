@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/billing",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "M15 — the billing broker. One BillingProvider interface: LocalBilling (self-host, free, no external calls) + StripeBilling (hosted). Swappable for Kill Bill / Lago."
+}

@@ -30,6 +30,11 @@ up, and prints the Studio / API / health URLs.
 the gate exposes `/v1/metrics` (Prometheus) + `/openapi.json`, so **Backstage · Superset · Appsmith** plug in
 with no custom backend (descriptors in `deploy/console/`); shared design tokens in `@aigovops/tokens`.
 
+**Hosted SaaS, open-core** (M15): the platform is **self-hostable forever, free** — the hosted tiers only fund
+the Foundation (Free · Team · Enterprise; **Self-hosted = unlimited**). Off by default; `AIGOVOPS_HOSTED=1`
+turns on per-tenant quotas + Stripe billing. Pricing page at `/pricing`. No lock-in — see
+**[docs/SAAS.md](docs/SAAS.md)**.
+
 An end-to-end open-source AI governance operations platform built on three
 products — **Beacon** (audit & proof), **Lantern** (monitoring & drift),
 **Umbrella** (policy & gates) — orchestrated by the **Jeeves** manager-agent.

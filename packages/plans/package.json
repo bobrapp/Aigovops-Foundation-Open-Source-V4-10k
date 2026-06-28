@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/plans",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "M15 — plans & entitlements for the hosted offering. Open-core: self-host is always unlimited and free; the hosted tiers fund the Foundation."
+}

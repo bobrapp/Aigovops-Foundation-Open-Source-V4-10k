@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/tenancy",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "M15 — multi-tenancy for the hosted offering: a tenant registry, request resolution, and per-tenant usage metering. Off by default — self-host is a single unlimited local tenant."
+}

@@ -184,12 +184,14 @@ across the vanilla Studio, the React Wizard, the Tauri desktop app, and the Back
 | **M12 — Jeeves agent-run installer** ✅ | `aigovops setup` — the human-gate state machine (auto-runs reversible steps, pauses at every irreversible gate) | shipped |
 | **M13 — Install everywhere** ✅ | `aigovops deploy <render\|fly\|do\|cloud-init>` · polished Helm chart (ingress/NOTES) · **Tauri** desktop scaffold | shipped |
 | **M14 — Polished consoles** ✅ | `@aigovops/tokens` design system · `/v1/metrics` (Prometheus) · Backstage/Superset/Appsmith integration descriptors | shipped |
+| **M15 — Hosted SaaS (open-core)** ✅ | `@aigovops/{plans,tenancy,billing}` · `/pricing` · `/v1/account` · Stripe + per-tenant quotas — **self-host stays unlimited & free** | shipped |
 
-**The whole productization roadmap (M10–M14) is built.** Three ways in — Wizard, single-script, Jeeves-run —
+**The whole productization roadmap (M10–M15) is built.** Three ways in — Wizard, single-script, Jeeves-run —
 all live; install everywhere via `aigovops up`/`deploy`, Compose, Helm, and the Tauri scaffold; the consoles
-(Backstage · Prometheus/Superset · Appsmith) plug into the gate's API + metrics with no custom backend.
-What remains is **ops** (build the Tauri installers with the Rust toolchain; point the consoles at a live
-deployment; publish images), not product.
+(Backstage · Prometheus/Superset · Appsmith) plug into the gate's API + metrics with no custom backend; and
+a hosted **open-core SaaS** (see **[SAAS.md](./SAAS.md)**) funds the Foundation while on-prem / lab / on-device
+stays unlimited and free. What remains is **ops** (build the Tauri installers; point consoles at a live
+deployment; wire a real Stripe account; publish images), not product.
 
 ## 7. Success metrics
 - **Time-to-first-gate** < 10 min (wizard) / < 2 min (script).

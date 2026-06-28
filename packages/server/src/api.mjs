@@ -12,6 +12,8 @@ import { runConformance } from "../../conformance/src/index.mjs";               
 import { studioHTML } from "./studio.mjs";
 import { wizardHTML } from "./wizard.mjs"; // M11
 import { inc, renderMetrics } from "./metrics.mjs"; // M14
+import { pricingHTML } from "./pricing.mjs"; // M15
+import { tenantFor, accountFor, meterDecision, billing } from "./saas.mjs"; // M15
 
 export const OPENAPI = {
   openapi: "3.0.0",
@@ -29,19 +31,27 @@ export const OPENAPI = {
   },
 };
 
-/** @returns {{status, json?} | {status, html}} */
-export async function handle({ method, path, body } = {}) {
+/** @returns {{status, json?} | {status, html} | {status, text}} */
+export async function handle({ method, path, body, headers, host } = {}) {
+  const tenant = tenantFor({ headers, host }); // M15 — "local" off-cloud, the SaaS tenant when hosted
   if (method === "GET" && (path === "/" || path === "/setup")) return { status: 200, html: wizardHTML() }; // policy folks land on the wizard
   if (method === "GET" && path === "/studio") return { status: 200, html: studioHTML() };                  // developers
+  if (method === "GET" && path === "/pricing") return { status: 200, html: pricingHTML() };                // M15
   if (method === "GET" && path === "/healthz") return { status: 200, json: { ok: true, service: "aigovops-gate", version: "4.0.0" } };
   if (method === "GET" && path === "/openapi.json") return { status: 200, json: OPENAPI };
+  if (method === "GET" && path === "/v1/account") return { status: 200, json: accountFor(tenant) };         // M15
   if (method === "GET" && path === "/v1/conformance") return run(() => runConformance());
   if (method === "GET" && path === "/v1/metrics") return { status: 200, text: renderMetrics({ aigovops_up: 1, aigovops_conformance_passed: runConformance().passed }) }; // M14
 
   if (method !== "POST") return { status: 404, json: { error: "not found" } };
   const b = body || {};
   switch (path) {
-    case "/v1/decide": return run(() => { const r = decide(b); inc("aigovops_decisions_total"); inc(r.status === "PASS" ? "aigovops_decisions_pass" : "aigovops_decisions_fail"); return r; });
+    case "/v1/decide": {
+      const q = meterDecision(tenant); // M15 — meter usage; gate only in hosted mode
+      if (!q.allowed) return { status: 402, json: { error: "monthly decision quota reached for this plan", upgrade: "/pricing", used: q.used, limit: q.limit } };
+      return run(() => { const r = decide(b); inc("aigovops_decisions_total"); inc(r.status === "PASS" ? "aigovops_decisions_pass" : "aigovops_decisions_fail"); return r; });
+    }
+    case "/v1/billing/checkout": return runAsync(() => billing.checkout({ tenant, plan: b.plan || "team" })); // M15
     case "/v1/improve": return run(() => { inc("aigovops_improve_total"); return improve(b.policyText || "", b.context || {}); });
     case "/v1/author": return run(() => authorPolicy(improve(b.policyText || "", b.context || {})));
     case "/v1/compare": return run(() => { inc("aigovops_compare_total"); return compare(b); });
@@ -63,5 +73,10 @@ function attestReceipt(receipt) {
 
 function run(fn) {
   try { return { status: 200, json: fn() }; }
+  catch (e) { return { status: 400, json: { error: e.message } }; }
+}
+
+async function runAsync(fn) {
+  try { return { status: 200, json: await fn() }; }
   catch (e) { return { status: 400, json: { error: e.message } }; }
 }

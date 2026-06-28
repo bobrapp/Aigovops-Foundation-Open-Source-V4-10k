@@ -12,7 +12,7 @@ export function serve({ port = 0 } = {}) {
     let body = null;
     try { body = raw ? JSON.parse(raw) : null; } catch { /* leave null */ }
     const url = new URL(req.url, "http://localhost");
-    const out = await handle({ method: req.method, path: url.pathname, body });
+    const out = await handle({ method: req.method, path: url.pathname, body, headers: req.headers, host: req.headers.host });
     if (out.html != null) {
       res.writeHead(out.status, { "content-type": "text/html; charset=utf-8" });
       res.end(out.html);
