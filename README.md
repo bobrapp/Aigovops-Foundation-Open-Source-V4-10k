@@ -38,6 +38,8 @@ packages/
   umbrella/src/compile.mjs← policy compiler + evaluator + framework profiles
   caps/    src/index.mjs  ← capability dial (read→propose→act→auto) + hard caps, fail-closed
   secrets/ src/index.mjs  ← SecretsProvider broker: issue→redeem→revoke; agents never see raw creds
+  corpus/  src/index.mjs  ← regulatory corpus: cited requirements (EU AI Act, GDPR, NIST, FERPA…)
+  policy-improver/        ← M1 — written policy → corpus → cited gap analysis + candidate gates
 jeeves/  src/index.mjs    ← manager-agent — delegates to @aigovops/gate
 docs/index.html           ← landing page (GitHub Pages) with a live Yes-Gate demo
 .github/workflows/        ← ci.yml (node --test) · pages.yml (deploys docs/)
@@ -58,6 +60,24 @@ decide(proposal):
   5. Beacon.sign(decision)                         → receipt (deny too)  proof
   6. on approve → Secrets.issue(scope, ttl)        → brokered grant      never a raw secret
 ```
+
+## Policy-Improver (M1)
+
+The wedge: a policy author brings a **written policy** (prose); the engine maps it against the
+applicable **regulatory corpus**, scores coverage, and returns **cited gaps** — each with a suggested
+clause and a candidate Umbrella gate (the hand-off to the developer). Deterministic and testable;
+citations come from the corpus, nothing is invented. A conversational LLM layer can wrap it for polish.
+
+```js
+import { improve, toMarkdown } from "@aigovops/policy-improver";
+
+const report = improve("We use an AI tutor and tell students it is AI.",
+  { sector: "education", jurisdiction: "EU", dataTypes: ["personal", "children"], riskTier: "high" });
+// report.gaps[i] → { framework, citation, why, suggestedClause, suggestedGate }
+console.log(toMarkdown(report));   // a cited improvement brief
+```
+
+Try it: `node packages/policy-improver/src/index.mjs`
 
 ## Quick start
 

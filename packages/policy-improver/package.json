@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/policy-improver",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "Policy-Improver (M1) — maps a written policy against the regulatory corpus, scores coverage, and returns cited gaps with suggested clauses and candidate gates."
+}

@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/corpus",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "Regulatory corpus — a structured, citeable index of AI-governance requirements (EU AI Act, GDPR, NIST AI RMF, ISO 42001, FERPA, HIPAA, Colorado AI Act, NYC LL144, OWASP LLM Top 10)."
+}
