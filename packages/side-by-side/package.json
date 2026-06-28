@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/side-by-side",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "Governed vs. ungoverned comparison — runs the same request through the unified gate and unchecked, and narrates exactly what governance caught (with citations)."
+}

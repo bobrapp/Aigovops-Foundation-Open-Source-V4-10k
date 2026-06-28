@@ -40,6 +40,8 @@ packages/
   secrets/ src/index.mjs  ← SecretsProvider broker: issue→redeem→revoke; agents never see raw creds
   corpus/  src/index.mjs  ← regulatory corpus: cited requirements (EU AI Act, GDPR, NIST, FERPA…)
   policy-improver/        ← M1 — written policy → corpus → cited gap analysis + candidate gates
+  gate-author/            ← M2 — candidate gates → runnable Umbrella policy + Get/Stay/Recover exit states
+  side-by-side/           ← M2 — governed vs. ungoverned comparison, with citations
 jeeves/  src/index.mjs    ← manager-agent — delegates to @aigovops/gate
 docs/index.html           ← landing page (GitHub Pages) with a live Yes-Gate demo
 .github/workflows/        ← ci.yml (node --test) · pages.yml (deploys docs/)
@@ -78,6 +80,26 @@ console.log(toMarkdown(report));   // a cited improvement brief
 ```
 
 Try it: `node packages/policy-improver/src/index.mjs`
+
+## Gate-Author + side-by-side (M2)
+
+The developer's half: M1's candidate gates become a **runnable Umbrella policy**, each gate carrying
+its three exit states (Get to YES = criteria · Stay at YES = Lantern re-check · Recover to YES =
+mitigation). `authorPolicy()` compiles the result, so it's guaranteed to run on the unified gate.
+Then **side-by-side** runs the same request governed vs. ungoverned and narrates exactly what the gate
+caught — with citations (a gate controlled by two regulations carries both).
+
+```js
+import { improve } from "@aigovops/policy-improver";
+import { authorPolicy, compliantExample } from "@aigovops/gate-author";
+import { compare } from "@aigovops/side-by-side";
+
+const authored = authorPolicy(improve(writtenPolicy, context));   // prose → runnable cited gates
+compare({ payload: { model: "gpt-4" }, authored });               // → governed BLOCKS, ungoverned runs
+compare({ payload: compliantExample(authored.policy), authored });// → governed PASS + signed receipt
+```
+
+End-to-end demo (prose → gaps → gates → governed/ungoverned): `node packages/side-by-side/src/index.mjs`
 
 ## Quick start
 

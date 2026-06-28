@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/gate-author",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "Gate-Author (M2) — turns a policy's candidate gates into a runnable Umbrella policy with explicit Get/Stay/Recover-to-YES exit states, guaranteed to compile."
+}

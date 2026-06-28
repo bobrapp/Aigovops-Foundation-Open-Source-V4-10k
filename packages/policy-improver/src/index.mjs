@@ -53,7 +53,9 @@ export function improve(policyText, context = {}) {
   }
 
   // Gaps that map cleanly to a gate are the developer's M2 starting set.
-  const suggestedGates = gaps.filter((g) => g.suggestedGate).map((g) => ({ from: g.id, citation: g.citation, rule: g.suggestedGate }));
+  const suggestedGates = gaps
+    .filter((g) => g.suggestedGate)
+    .map((g) => ({ from: g.id, framework: g.framework, title: g.title, citation: g.citation, mitigation: g.suggestedClause, rule: g.suggestedGate }));
 
   return {
     context,
