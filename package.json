@@ -1,0 +1,14 @@
+{
+  "name": "aigovops-foundation-v4",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "AI governance operations platform — Beacon, Lantern, Umbrella, orchestrated by Jeeves.",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "workspaces": ["shared", "packages/*", "jeeves"],
+  "scripts": {
+    "test": "node --test",
+    "demo": "node jeeves/src/index.mjs"
+  }
+}

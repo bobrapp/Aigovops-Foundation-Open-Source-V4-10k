@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/umbrella",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "Policy & gates — policy compiler, code gates, framework profiles."
+}

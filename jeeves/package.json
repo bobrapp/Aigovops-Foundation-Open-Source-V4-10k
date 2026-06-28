@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/jeeves",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "Manager-agent — orchestrates Beacon, Lantern, and Umbrella."
+}
