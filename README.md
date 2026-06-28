@@ -44,7 +44,11 @@ packages/
   side-by-side/           ← M2 — governed vs. ungoverned comparison, with citations
   install/                ← M3 — onboarding installer: tier detect + guided first session
   control-room/           ← M3 — role-scoped oversight dashboard (zero-dep node:http server)
+  adapters/               ← M4 — local + heavyweight backends (OPA, Keycloak, Prometheus, OpenSearch, Kong)
 jeeves/  src/index.mjs    ← manager-agent — delegates to @aigovops/gate
+         src/llm.mjs      ← LLM client: HeuristicLLM (offline) + AnthropicLLM (claude-opus-4-8 via fetch)
+         src/converse.mjs ← conversational policy-improver, grounded in the deterministic engine
+         src/manager.mjs  ← Jeeves as agent manager (route sub-agents) + site manager (estate status)
 docs/index.html           ← landing page (GitHub Pages) with a live Yes-Gate demo
 .github/workflows/        ← ci.yml (node --test) · pages.yml (deploys docs/)
 INTEROP.md                ← Apache-2.0 / 10k★ projects that back each component
@@ -114,6 +118,32 @@ gate health; policy-author and member see only their own effects; an unknown rol
 ```bash
 node packages/install/src/cli.mjs          # the guided walkthrough → signed receipt
 node packages/control-room/src/cli.mjs     # dashboard at http://localhost:8920  (?role=steward vs ?role=member)
+```
+
+## Heavyweight adapters (M4)
+
+The core stays tiny and zero-dependency; for production scale each capability has a pluggable
+backend behind **one contract**. `selectBackends(tier)` returns local (zero-dep) implementations for
+tiers 1–3 and heavyweight shims for tiers 4–6 — **OPA** (policy), **Prometheus** (drift), **Keycloak**
+(identity), **OpenSearch** (audit), **Kong** (gateway). Each shim takes an injectable `transport`, so
+the request-building and response-mapping are unit-tested against canned responses — no live service,
+no runtime dependency added.
+
+## Conversational Jeeves (agent + site manager)
+
+Jeeves fronts the policy-improver with a **conversational layer** whose facts stay honest: the LLM only
+infers context from free text and phrases the reply — the **gaps and citations come from the deterministic
+engine**, and the model is told to invent nothing. The LLM client is injectable: `HeuristicLLM` (offline,
+deterministic, used in tests) or `AnthropicLLM` (real **claude-opus-4-8** via raw `fetch`, keeping the core
+zero-dependency). As **agent manager**, Jeeves routes a request to the right sub-agent; as **site manager**,
+`status()` gives a role-aware view over the whole estate.
+
+```js
+import { Jeeves, HeuristicLLM, AnthropicLLM } from "@aigovops/jeeves";
+
+const jeeves = new Jeeves({ llm: new HeuristicLLM() });   // or new AnthropicLLM() with ANTHROPIC_API_KEY
+const { report, reply } = await jeeves.converse("Our EU school runs an AI tutor for students");
+// report.gaps → cited gaps (deterministic) · reply → grounded natural-language summary
 ```
 
 ## Quick start

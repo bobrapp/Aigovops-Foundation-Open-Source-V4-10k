@@ -1,6 +1,9 @@
 import { decide } from "../../packages/gate/src/index.mjs";
 
 export { verifyReceipt } from "../../packages/beacon/src/index.mjs";
+export { HeuristicLLM, AnthropicLLM } from "./llm.mjs";
+export { converse } from "./converse.mjs";
+export { Jeeves, JEEVES_AGENTS, route } from "./manager.mjs";
 
 // Jeeves — the manager-agent. As of M0 it delegates to the ONE unified gate
 // (@aigovops/gate) instead of re-implementing the pipeline. It proposes; the gate

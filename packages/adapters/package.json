@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/adapters",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "M4 — pluggable backends behind one contract: local (zero-dep) defaults + heavyweight shims (OPA, Keycloak, Prometheus, OpenSearch, Kong) via an injectable transport."
+}
