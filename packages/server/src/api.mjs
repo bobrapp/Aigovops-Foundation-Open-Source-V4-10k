@@ -16,6 +16,7 @@ import { pricingHTML } from "./pricing.mjs"; // M15
 import { tenantFor, accountFor, meterDecision, billing } from "./saas.mjs"; // M15
 import { recordDecision, listEvidence, verifyEvidence, evidenceBundle } from "./evidence.mjs"; // M16
 import { recentSpans } from "./trace.mjs"; // M17
+import { opsConsoleHTML, opsState, opsApprove, opsReset } from "./ops.mjs"; // M21
 
 export const OPENAPI = {
   openapi: "3.0.0",
@@ -51,10 +52,14 @@ export async function handle({ method, path, body, headers, host } = {}) {
   if (method === "GET" && path === "/v1/conformance") return run(() => runConformance());
   if (method === "GET" && path === "/v1/metrics") return { status: 200, text: renderMetrics({ aigovops_up: 1, aigovops_conformance_passed: runConformance().passed }) }; // M14
   if (method === "GET" && path === "/v1/traces") return { status: 200, json: recentSpans() }; // M17
+  if (method === "GET" && path === "/approvals") return { status: 200, html: opsConsoleHTML() }; // M21
+  if (method === "GET" && path === "/v1/ops/state") return runAsync(() => opsState());           // M21
 
   if (method !== "POST") return { status: 404, json: { error: "not found" } };
   const b = body || {};
   switch (path) {
+    case "/v1/ops/approve": return runAsync(() => opsApprove(b.id)); // M21 — advance the live runbook
+    case "/v1/ops/reset": return runAsync(() => opsReset());         // M21
     case "/v1/decide": {
       const q = meterDecision(tenant); // M15 — meter usage; gate only in hosted mode
       if (!q.allowed) return { status: 402, json: { error: "monthly decision quota reached for this plan", upgrade: "/pricing", used: q.used, limit: q.limit } };
