@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/sandbox",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "M9 — the OS-level enforcement floor: emit a seccomp profile, an nftables egress allow-list (default-drop, proxy-only), and a gVisor runtimeClass from a declared tool spec."
+}

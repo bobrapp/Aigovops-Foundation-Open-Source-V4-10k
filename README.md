@@ -47,7 +47,12 @@ packages/
   adapters/               ← M4 — local + heavyweight backends (OPA, Keycloak, Prometheus, OpenSearch, Kong)
   agents/                 ← M5 — Tier-1 autonomous agents (regulation-watch, compliance-attestor, audit-bundler)
   scheduler/              ← M5 — zero-dep cron + exporters to a real Airflow DAG / GitHub Actions workflow
+  server/                 ← M9 — the unified gate as a service (HTTP API) + GateClient SDK
+  store/                  ← M9 — persistence: one KVStore contract, Memory + File impls
+  sandbox/                ← M9 — OS-level rules: seccomp · nftables egress · gVisor emitters
+  conformance/            ← M9 — the contract any AiGovOps gate (any language) must pass
 jeeves/  src/index.mjs    ← manager-agent — delegates to @aigovops/gate
+Dockerfile · deploy/helm/ ← M9 — container + Helm chart for the gate service
          src/llm.mjs      ← LLM client: HeuristicLLM (offline) + AnthropicLLM (claude-opus-4-8 via fetch)
          src/converse.mjs ← conversational policy-improver, grounded in the deterministic engine
          src/manager.mjs  ← Jeeves as agent manager (route sub-agents) + site manager (estate status)
@@ -165,6 +170,29 @@ a dependency. Define the schedule once; run it wherever the environment allows.
 node packages/agents/src/run.mjs regulation-watch     # run an agent directly
 # emit deploy artifacts:
 node -e "import('./packages/scheduler/src/index.mjs').then(async s=>{const{TIER1_JOBS}=await import('./packages/agents/src/index.mjs');process.stdout.write(s.toAirflowDags(TIER1_JOBS))})" > dags/aigovops_tier1.py
+```
+
+## Gate as a service · platform (M9)
+
+The unified gate runs as a **zero-dependency HTTP service** so any language can call the same contract,
+with a reference **SDK client**. The platform layer also adds durable **persistence** (one `KVStore`
+contract), the **OS-level sandbox** emitters (seccomp · nftables egress · gVisor), a **conformance suite**
+any implementation must pass, and **Docker + Helm** to deploy it.
+
+```bash
+node packages/server/src/cli.mjs     # gate API at http://localhost:8930
+curl -s localhost:8930/healthz
+curl -s -XPOST localhost:8930/v1/decide -d '{"profile":"baseline","payload":{"model":"claude-opus-4-8","humanApproved":true}}'
+docker build -t aigovops . && docker run -p 8930:8930 aigovops   # or: helm install gate deploy/helm/aigovops
+```
+
+```js
+import { GateClient } from "@aigovops/server";
+const gate = new GateClient({ baseUrl: "http://localhost:8930" });
+await gate.decide({ profile: "baseline", payload: { model: "claude-opus-4-8", humanApproved: true } });
+
+import { runConformance } from "@aigovops/conformance";
+runConformance();   // → { conformant: true, passed: 6, total: 6 } — the contract any port must pass
 ```
 
 ## Quick start

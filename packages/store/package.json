@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/store",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "M9 — durable persistence behind one KVStore contract: Memory (lab) + File (node:fs). Postgres/OpenSearch drop in behind the same interface."
+}

@@ -1,0 +1,8 @@
+{
+  "name": "@aigovops/server",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "bin": { "aigovops-server": "src/cli.mjs" },
+  "description": "M9 — the unified gate as a service: a zero-dep HTTP API (decide/improve/author/compare) + a GateClient SDK. Any language calls the same contract."
+}

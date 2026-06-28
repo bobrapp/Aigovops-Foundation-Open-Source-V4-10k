@@ -1,0 +1,8 @@
+apiVersion: v2
+name: aigovops
+description: The AiGovOps governed gate service — Get to YES, Stay at YES, Recover to YES.
+type: application
+version: 0.1.0
+appVersion: "4.0.0"
+keywords: [ai-governance, policy-as-code, audit, drift]
+home: https://bobrapp.github.io/Aigovops-Foundation-Open-Source-V4-10k/

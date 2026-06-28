@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/conformance",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "M9 — the conformance suite: the behavioral contract any AiGovOps gate implementation (in any language) must pass to be governed-core compatible."
+}

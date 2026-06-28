@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-gate
+  labels: { app: aigovops-gate }
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels: { app: aigovops-gate }
+  template:
+    metadata:
+      labels: { app: aigovops-gate }
+    spec:
+      {{- if .Values.runtimeClassName }}
+      runtimeClassName: {{ .Values.runtimeClassName }}
+      {{- end }}
+      containers:
+        - name: gate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: PORT
+              value: "{{ .Values.service.port }}"
+            - name: AIGOVOPS_TIER
+              value: "{{ .Values.tier }}"
+          readinessProbe:
+            httpGet: { path: /healthz, port: {{ .Values.service.port }} }
+          livenessProbe:
+            httpGet: { path: /healthz, port: {{ .Values.service.port }} }
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
