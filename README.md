@@ -37,7 +37,7 @@ packages/
   umbrella/src/compile.mjs← policy compiler + evaluator + framework profiles
 jeeves/  src/index.mjs    ← orchestrates Umbrella → Lantern → Beacon
 docs/index.html           ← landing page (GitHub Pages) with a live Yes-Gate demo
-.github/workflows/        ← ci.yml (node --test) · jekyll-gh-pages.yml (Pages)
+.github/workflows/        ← ci.yml (node --test) · pages.yml (deploys docs/)
 INTEROP.md                ← Apache-2.0 / 10k★ projects that back each component
 ```
 
