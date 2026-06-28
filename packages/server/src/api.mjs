@@ -10,6 +10,7 @@ import { attest, verifyDsse, toInTotoStatement, generateKeypair } from "../../be
 import { distributionDrift } from "../../lantern/src/index.mjs";                                     // M7
 import { runConformance } from "../../conformance/src/index.mjs";                                    // M9
 import { studioHTML } from "./studio.mjs";
+import { wizardHTML } from "./wizard.mjs"; // M11
 
 export const OPENAPI = {
   openapi: "3.0.0",
@@ -29,7 +30,8 @@ export const OPENAPI = {
 
 /** @returns {{status, json?} | {status, html}} */
 export async function handle({ method, path, body } = {}) {
-  if (method === "GET" && (path === "/" || path === "/studio")) return { status: 200, html: studioHTML() };
+  if (method === "GET" && (path === "/" || path === "/setup")) return { status: 200, html: wizardHTML() }; // policy folks land on the wizard
+  if (method === "GET" && path === "/studio") return { status: 200, html: studioHTML() };                  // developers
   if (method === "GET" && path === "/healthz") return { status: 200, json: { ok: true, service: "aigovops-gate", version: "4.0.0" } };
   if (method === "GET" && path === "/openapi.json") return { status: 200, json: OPENAPI };
   if (method === "GET" && path === "/v1/conformance") return run(() => runConformance());

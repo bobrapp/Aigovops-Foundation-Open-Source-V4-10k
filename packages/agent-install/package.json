@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/agent-install",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "M12 — Jeeves agent-run install: a human-gate state machine that automates everything reversible and pauses at every irreversible step. Agents do the bureaucracy; humans hold the keys."
+}

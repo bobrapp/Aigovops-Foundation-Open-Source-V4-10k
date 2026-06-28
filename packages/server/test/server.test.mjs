@@ -18,9 +18,10 @@ test("handle() routes the product surface", async () => {
   assert.equal((await handle({ method: "GET", path: "/nope" })).status, 404);
 });
 
-test("serves the Studio UX at / and the production endpoints (M6–M9)", async () => {
-  const home = await handle({ method: "GET", path: "/" });
-  assert.match(home.html, /AiGovOps Studio/);
+test("serves the Wizard at /, the Studio at /studio, and the production endpoints (M6–M9)", async () => {
+  assert.match((await handle({ method: "GET", path: "/" })).html, /Get your AI governed|Get Governed|get your AI governed/i);   // M11 wizard for policy folks
+  assert.match((await handle({ method: "GET", path: "/setup" })).html, /AiGovOps/);
+  assert.match((await handle({ method: "GET", path: "/studio" })).html, /AiGovOps Studio/);                                    // developer console
 
   const EU = { sector: "education", jurisdiction: "EU", dataTypes: ["personal", "children"], riskTier: "high" };
   const profiles = (await handle({ method: "POST", path: "/v1/profiles", body: { context: EU } })).json;

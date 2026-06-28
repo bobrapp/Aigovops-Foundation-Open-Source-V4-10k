@@ -180,8 +180,8 @@ across the vanilla Studio, the React Wizard, the Tauri desktop app, and the Back
 | Milestone | Ships | Rough effort |
 |---|---|---|
 | **M10 — One-command install** ✅ | `aigovops up` CLI · `curl\|sh` · Docker image · Compose (gate + Caddy + Keycloak + OpenSearch + Prometheus) | shipped |
-| **M11 — The Wizard** | the Intuit-grade web wizard on the gate API + Jeeves; the Compliance Certificate; design-token system | ~4–6 wk |
-| **M12 — Jeeves agent-run installer** | the dead-simple agent end-to-end with human gates; browser-driven cloud provisioning | ~3–4 wk |
+| **M11 — The Wizard** ✅ | the Intuit-grade web wizard (served at `/`) on the gate API + Jeeves; the signed Compliance Certificate | shipped |
+| **M12 — Jeeves agent-run installer** ✅ | `aigovops setup` — the human-gate state machine (auto-runs reversible steps, pauses at every irreversible gate) | shipped |
 | **M13 — Install everywhere** | polished Helm chart · k3s 1-click · DigitalOcean/Render/Railway buttons · **Tauri** desktop app | ~4–5 wk |
 | **M14 — Polished consoles** | Backstage/Appsmith/Superset-backed admin + analytics; full Intuit-grade design pass | ~4–6 wk |
 

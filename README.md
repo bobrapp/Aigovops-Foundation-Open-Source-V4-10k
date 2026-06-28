@@ -16,8 +16,14 @@ node packages/cli/src/cli.mjs doctor              # preflight checks
 ```
 
 `aigovops up` detects the tier, generates the Docker Compose stack + a Caddy auto-HTTPS config, brings it
-up, and prints the Studio / API / health URLs. See **[docs/PRODUCTIZATION.md](docs/PRODUCTIZATION.md)** for
-the full 1-click plan (wizard for policy folks · single-script for tech folks · Jeeves agent-run).
+up, and prints the Studio / API / health URLs.
+
+**Three ways in** (see **[docs/PRODUCTIZATION.md](docs/PRODUCTIZATION.md)**):
+- **Policy folks** → the no-code **Wizard** at `/` (M11): one decision per screen, ends in a signed
+  Compliance Certificate. Developers' console is at `/studio`.
+- **Tech folks** → `aigovops up` / `curl|sh` (M10).
+- **Jeeves agent-run** → `aigovops setup --target cloud` (M12): proposes the plan, auto-runs everything
+  reversible, and pauses at each irreversible **human gate** (provision · account · DNS · go-live).
 
 An end-to-end open-source AI governance operations platform built on three
 products — **Beacon** (audit & proof), **Lantern** (monitoring & drift),

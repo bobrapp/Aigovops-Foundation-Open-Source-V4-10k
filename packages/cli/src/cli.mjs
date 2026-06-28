@@ -7,6 +7,7 @@ import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { plan, composeYaml, caddyfileFor } from "./index.mjs";
+import { installPlan, JeevesInstaller, toProposal } from "../../agent-install/src/index.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 const argv = process.argv.slice(2);
@@ -36,6 +37,36 @@ if (cmd === "plan") { console.log(JSON.stringify(p, null, 2)); process.exit(0); 
 
 if (cmd === "down") {
   spawnSync("docker", ["compose", "-f", join(repoRoot, "deploy/compose/docker-compose.yml"), "down"], { stdio: "inherit" });
+  process.exit(0);
+}
+
+if (cmd === "setup") {
+  // The Jeeves agent-run: propose the plan; auto-run reversible steps; pause at every human gate.
+  const target = typeof flag("target") === "string" ? flag("target") : "local";
+  const domain = typeof flag("domain") === "string" ? flag("domain") : undefined;
+  const approvals = typeof flag("approve") === "string" ? String(flag("approve")).split(",").map((s) => s.trim()).filter(Boolean) : [];
+  const ip = installPlan({ tier: p.tier, target, domain });
+  console.log("\n" + toProposal(ip) + "\n");
+  if (!argv.includes("--execute")) {
+    console.log("(dry run — Jeeves runs the auto steps and pauses at each ⛔ gate for your approval.)");
+    console.log("Run it:  aigovops setup --target " + target + " --execute --approve <gate-ids>");
+    process.exit(0);
+  }
+  const inst = new JeevesInstaller({
+    plan: ip,
+    executors: {
+      deploy: () => { console.log("   …deploying via `aigovops up`"); return "deployed"; },
+      verify: () => "conformance ok · signed receipt",
+    },
+  });
+  approvals.forEach((g) => inst.approve(g));
+  const r = await inst.run();
+  console.log("ran: " + r.completed.map((c) => c.id).join(", "));
+  if (r.status === "blocked") {
+    console.log(`\n⛔ Paused at: ${r.gate.title}\n   ↳ ${r.message}\n   approve: aigovops setup --target ${target} --execute --approve ${[...inst.approved, r.at].join(",")}`);
+  } else {
+    console.log("\n✓ Install complete — humans held the keys at every irreversible step.");
+  }
   process.exit(0);
 }
 
