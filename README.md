@@ -45,6 +45,8 @@ packages/
   install/                ← M3 — onboarding installer: tier detect + guided first session
   control-room/           ← M3 — role-scoped oversight dashboard (zero-dep node:http server)
   adapters/               ← M4 — local + heavyweight backends (OPA, Keycloak, Prometheus, OpenSearch, Kong)
+  agents/                 ← M5 — Tier-1 autonomous agents (regulation-watch, compliance-attestor, audit-bundler)
+  scheduler/              ← M5 — zero-dep cron + exporters to a real Airflow DAG / GitHub Actions workflow
 jeeves/  src/index.mjs    ← manager-agent — delegates to @aigovops/gate
          src/llm.mjs      ← LLM client: HeuristicLLM (offline) + AnthropicLLM (claude-opus-4-8 via fetch)
          src/converse.mjs ← conversational policy-improver, grounded in the deterministic engine
@@ -144,6 +146,21 @@ import { Jeeves, HeuristicLLM, AnthropicLLM } from "@aigovops/jeeves";
 const jeeves = new Jeeves({ llm: new HeuristicLLM() });   // or new AnthropicLLM() with ANTHROPIC_API_KEY
 const { report, reply } = await jeeves.converse("Our EU school runs an AI tutor for students");
 // report.gaps → cited gaps (deterministic) · reply → grounded natural-language summary
+```
+
+## Tier-1 autonomous agents (M5)
+
+Three agents run on a schedule with no human trigger, committing signed evidence:
+**regulation-watch** (diffs the corpus), **compliance-attestor** (runs a batch through the gate and signs
+the weekly evidence bundle), **audit-bundler** (tallies the ledger into a signed auditor report). The
+**scheduler** is a zero-dep cron engine that can run them locally — and **exporters** emit the same job set
+as a real Airflow DAG or GitHub Actions workflow, so they deploy to production infra without either becoming
+a dependency. Define the schedule once; run it wherever the environment allows.
+
+```bash
+node packages/agents/src/run.mjs regulation-watch     # run an agent directly
+# emit deploy artifacts:
+node -e "import('./packages/scheduler/src/index.mjs').then(async s=>{const{TIER1_JOBS}=await import('./packages/agents/src/index.mjs');process.stdout.write(s.toAirflowDags(TIER1_JOBS))})" > dags/aigovops_tier1.py
 ```
 
 ## Quick start

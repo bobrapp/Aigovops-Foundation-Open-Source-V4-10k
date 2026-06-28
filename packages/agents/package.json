@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/agents",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "M5 — Tier-1 autonomous agents: regulation-watch, compliance-attestor, audit-bundler. Scheduled work that runs without a human trigger and commits signed evidence."
+}

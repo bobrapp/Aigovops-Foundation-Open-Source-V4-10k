@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/scheduler",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "M5 — a zero-dep cron scheduler for the Tier-1 agents, plus exporters that emit a real Airflow DAG (or GitHub Actions workflow) without making either a dependency."
+}
