@@ -36,7 +36,7 @@ export function prepareStep(step, ctx = {}) {
     case "desktop-sign":
       return auto({ command: "bash deploy/scripts/sign-desktop.sh", artifactPath: "deploy/scripts/sign-desktop.sh" });
     case "stripe-wire":
-      return auto({ command: "docker compose --env-file deploy/stripe/.env up -d", artifactPath: "deploy/stripe/.env.template" });
+      return auto({ command: "docker compose --env-file deploy/stripe/.env up -d", artifactPath: "deploy/stripe/env.template" });
     case "npm-publish":
       return auto({ command: "npm publish --workspaces --access public" });
     case "dns":
