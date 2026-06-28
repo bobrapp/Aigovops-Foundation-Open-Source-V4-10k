@@ -1,7 +1,7 @@
 # AiGovOps v4 — Milestones
 
 The full build, milestone by milestone. Every one was tested, shipped to `main`, and verified
-(CI + Pages green). End state: **27 workspaces · 153 tests · zero runtime dependencies · MIT · public**.
+(CI + Pages green). End state: **27 workspaces · 160 tests · zero runtime dependencies · MIT · public**.
 
 ## Phase 0 — Foundation
 | | What shipped |
