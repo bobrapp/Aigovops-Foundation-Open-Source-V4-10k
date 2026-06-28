@@ -26,3 +26,16 @@ Run the live demo: `node packages/beacon/src/index.mjs`
 
 In production the signing key comes from the secrets broker, never from disk —
 agents propose, humans hold the keys.
+
+## v-next (M6)
+
+- **Hash-chained ledger** (`Ledger`) — append-only, tamper-evident (each entry links to the
+  previous by hash); `verifyChain()` detects any edit/reorder/deletion; NDJSON persistence; an
+  optional `sink` streams every entry to a searchable store (e.g. the OpenSearch adapter).
+- **Key rotation** (`KeyRing`) — sign with the current key; verify against current **or** retired,
+  so receipts signed before a rotation still verify.
+- **Standards attestation** (`attest`) — turns a receipt into an **in-toto** Statement carrying a
+  **SLSA** provenance predicate, wrapped in a **DSSE** envelope that Sigstore/cosign and in-toto
+  verifiers consume. `verifyDsse()` checks it offline.
+- **MLflow** (`signMlflowModel`) — signs a receipt over a registered model version (run, stage, URI)
+  so evidence attests to a specific model in the registry.

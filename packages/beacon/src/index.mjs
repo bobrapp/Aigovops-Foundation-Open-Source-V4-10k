@@ -2,6 +2,11 @@ import { gate } from "../../../shared/gate.mjs";
 import { signReceipt, verifyReceipt, generateKeypair } from "./sign.mjs";
 
 export { signReceipt, verifyReceipt, generateKeypair, hashEvidence, canonicalize } from "./sign.mjs";
+// Beacon v-next (M6)
+export { Ledger } from "./ledger.mjs";
+export { KeyRing } from "./keys.mjs";
+export { toInTotoStatement, toDsseEnvelope, verifyDsse, attest, IN_TOTO_STATEMENT, SLSA_PROVENANCE } from "./attestation.mjs";
+export { evidenceFromMlflow, signMlflowModel } from "./mlflow.mjs";
 
 // Beacon — Audit & proof. Runs its gate; on PASS, signs a verifiable evidence receipt.
 export function signEvidence(input = {}) {

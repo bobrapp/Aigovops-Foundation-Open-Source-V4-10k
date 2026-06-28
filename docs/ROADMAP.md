@@ -1,0 +1,80 @@
+# AiGovOps v4 — Roadmap to a production end-to-end solution
+
+The **governance kernel is built** (M0–M5 + the conversational layer): the unified gate, the three real
+products, the LLM-fronted Jeeves, the heavyweight adapters, and the Tier-1 agents — **96 tests, zero
+runtime dependencies**. This roadmap is the path from that kernel to a **production, self-hostable,
+end-to-end** next version of each product, with every external capability behind a swappable
+**Apache-2.0** module.
+
+The discipline holds throughout: **define the safety contract once; enforce it with the strongest backend
+each environment allows.** The core stays tiny and zero-dependency; each module is reached through an
+adapter that produces the same `{ status, mitigation, receipt }` shape.
+
+## Done — the kernel (M0–M5)
+
+| | Milestone | What shipped |
+|---|---|---|
+| M0 | Unified gate | one `decide()`: Umbrella → Lantern → Caps → human → Beacon → Secrets |
+| M1 | Policy-Improver | written policy → cited gaps (from the public regulatory corpus) |
+| M2 | Gate-Author + side-by-side | gaps → runnable gates with Get/Stay/Recover exit states; governed vs. ungoverned |
+| M3 | Install + Control Room | tier-detecting onboarding + role-scoped oversight dashboard |
+| M4 | Heavyweight adapters | OPA · Prometheus · Keycloak · OpenSearch · Kong (timeout/retry/health) |
+| M5 | Tier-1 agents + scheduler | regulation-watch · compliance-attestor · audit-bundler; Airflow/Actions export |
+| — | Conversational Jeeves | offline + Claude-backed LLM layer; agent manager + site manager |
+
+## Next — production v-next, per product
+
+Each product already has its **core logic** and its **primary backend adapter**. The remaining work is
+persistence, the rest of the modules, and packaging.
+
+### 🔦 Beacon — audit & proof  · **M6 ✅ (this release)**
+| Capability | Module | Status |
+|---|---|---|
+| Hash-chained, tamper-evident ledger + NDJSON persistence | — (zero-dep) | ✅ |
+| Key rotation (verify across current + retired) | — | ✅ |
+| Standards attestation: in-toto Statement + SLSA provenance, DSSE-signed | **Sigstore/cosign**, **in-toto** | ✅ |
+| Model system-of-record | **MLflow** | ✅ adapter |
+| Searchable evidence store | **OpenSearch** | ✅ adapter (sink wired) · query API ◻️ |
+| Log shipping | **Fluentd** | ◻️ |
+
+### 🪔 Lantern — monitoring & drift  · **M7**
+| Capability | Module | Status |
+|---|---|---|
+| Live metric / trace ingestion | **Prometheus** · **OpenTelemetry** · **Jaeger** | ✅ Prometheus · OTel/Jaeger ◻️ |
+| Statistical / distributional drift (PSI, KL, K-S) | **Evidently** (or zero-dep stats) | ◻️ |
+| Data-quality gates | **Great Expectations** | ◻️ |
+| Continuous monitor loop + alerting | scheduler ✅ + **Alertmanager** | ◻️ alert routing |
+| Baseline + drift-history store | OpenSearch / Prometheus | ◻️ |
+
+### ☂️ Umbrella — policy & gates  · **M8**
+| Capability | Module | Status |
+|---|---|---|
+| Heavyweight policy engine (Rego) | **OPA** | ✅ adapter · Rego library ◻️ |
+| Authorization (RBAC / ABAC) | **Casbin** | ◻️ |
+| Security gates (scan / SAST / DAST) | **Trivy** · **OWASP ZAP** · Semgrep | ◻️ |
+| Framework profile library (EU AI Act, GDPR, HIPAA…) | corpus ✅ | ◻️ compile profiles |
+| Kubernetes enforcement | **Kyverno** / Gatekeeper | ◻️ |
+| Policy lifecycle (version / simulate / canary) | side-by-side ✅ | ◻️ rollout |
+
+### 🧩 Platform — what makes all three one solution  · **M9**
+| Concern | Module | Status |
+|---|---|---|
+| Unified gate as a service (HTTP API + SDK clients) | — | ◻️ |
+| Identity & oversight | **Keycloak** · Backstage/Superset | ✅ adapter + dashboard |
+| Gateway / OS-level sandbox | **Kong/APISIX** + gVisor/seccomp/nftables | ✅ adapter · sandbox ◻️ |
+| Orchestration | **Airflow / Argo** | ✅ exporter → deploy |
+| Secrets backends | broker ✅ + **Vault / KMS** | ◻️ |
+| Persistence (ledger / baselines / policies / sessions) | OpenSearch + Postgres/SQLite | ◻️ |
+| Packaging (npm + Docker + Helm) | — | install CLI ✅ · publish ◻️ |
+| Platform self-observability | OTel + Prometheus + Grafana | ◻️ |
+| Conformance suite + multi-language SDKs | — | ◻️ |
+
+## Total
+
+- **~20 open-source modules**, all Apache-2.0 / 10k★ (see `INTEROP.md`). The **primary adapter for each
+  product is already built** (OPA → Umbrella, Prometheus → Lantern, OpenSearch → Beacon).
+- **Effort remaining (rough):** M6 ✅ · M7 ~4–5 wk · M8 ~4–5 wk · M9 ~6–8 wk → **~15–20 engineer-weeks**,
+  heavily parallelizable (M7/M8 are independent) and agent-accelerated. End state ≈ **30 packages**, same
+  zero-core-dependency discipline, every external module swappable.
+
+*Agents do the bureaucracy; humans hold the meaning — and humans hold the keys.*
