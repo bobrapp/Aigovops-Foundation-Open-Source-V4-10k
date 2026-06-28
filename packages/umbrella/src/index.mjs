@@ -7,6 +7,7 @@ export { compileFrameworkProfile, availableProfiles } from "./profiles.mjs";
 export { Enforcer } from "./authz.mjs";
 export { toKyvernoPolicy } from "./kyverno.mjs";
 export { PolicyRegistry } from "./lifecycle.mjs";
+export { toRego } from "./rego.mjs"; // M18 — OPA Rego emitter
 
 // Umbrella — Policy & gates. Compiles a declarative policy (or a named profile),
 // evaluates the payload against it, and gates on the violations.

@@ -35,21 +35,21 @@ persistence, the rest of the modules, and packaging.
 | Standards attestation: in-toto Statement + SLSA provenance, DSSE-signed | **Sigstore/cosign**, **in-toto** | ✅ |
 | Model system-of-record | **MLflow** | ✅ adapter |
 | Searchable evidence store + query/DSAR | **OpenSearch** sink + the evidence vault | ✅ — hash-chained vault, role-scoped query, signed DSAR bundles (M16) |
-| Log shipping | **Fluentd** | ◻️ |
+| Log shipping | **Fluentd** / Fluent Bit | ✅ `FluentdSink` — metadata-only (M18) |
 
 ### 🪔 Lantern — monitoring & drift  · **M7 ✅ (this release)**
 | Capability | Module | Status |
 |---|---|---|
-| Live metric / trace ingestion | **Prometheus** · **OpenTelemetry** · **Jaeger** | ✅ Prometheus + Jaeger · OTel ◻️ |
+| Live metric / trace ingestion | **Prometheus** · **OpenTelemetry** · **Jaeger** | ✅ Prometheus + Jaeger + OTLP traces (M17) |
 | Statistical / distributional drift (PSI, KL, K-S) | zero-dep stats (**Evidently**-compatible) | ✅ |
 | Data-quality gates | **Great Expectations**-style suite | ✅ |
 | Continuous monitor loop + alerting | scheduler ✅ + **Alertmanager** | ✅ Monitor + Alertmanager routing |
-| Baseline + drift-history store | OpenSearch / Prometheus | ◻️ |
+| Baseline + drift-history store | `DriftHistory` over the store contract | ✅ — per-field series + stability summary (M18) |
 
 ### ☂️ Umbrella — policy & gates  · **M8 ✅ (this release)**
 | Capability | Module | Status |
 |---|---|---|
-| Heavyweight policy engine (Rego) | **OPA** | ✅ adapter · Rego library ◻️ |
+| Heavyweight policy engine (Rego) | **OPA** | ✅ adapter + `toRego` emitter — authored gates → real Rego (M18) |
 | Authorization (RBAC / ABAC) | **Casbin**-compatible `Enforcer` | ✅ |
 | Security gates (scan / SAST / DAST) | **Trivy** · **OWASP ZAP** · **Semgrep** | ✅ |
 | Framework profile library (EU AI Act, GDPR, HIPAA…) | corpus ✅ → `compileFrameworkProfile` | ✅ |
@@ -72,13 +72,16 @@ persistence, the rest of the modules, and packaging.
 | Multi-language SDK | JS `GateClient` + **Python** SDK (cross-lang conformance) | ✅ (M17) |
 | Release automation | GHCR image build/push + GitHub release on tag | ✅ (M17) |
 
-## Total — the roadmap is built
+## Total — the roadmap is built (every ◻️ closed)
 
-- **The entire M0–M9 arc is shipped.** 21 workspaces, **120 tests**, **zero runtime dependencies**, every
+- **The entire M0–M18 arc is shipped.** 27 workspaces, **169 tests**, **zero runtime dependencies**, every
   external capability behind a swappable Apache-2.0 adapter.
-- **~20 open-source modules** integrated (see `INTEROP.md`). All three products are production-shaped, and
-  the platform layer (gate-as-a-service, persistence, OS sandbox, packaging, conformance) is in place.
-- **What's left is ops, not product:** wiring live Vault/KMS secret backends and platform self-observability
-  (OTel/Grafana) to a specific deployment — environment-specific glue, done at install time, not new modules.
+- **~20 open-source modules** integrated (see `INTEROP.md`). All three products are production-shaped; the
+  platform layer (gate-as-a-service, persistence, OS sandbox, packaging, conformance) is in place; and the
+  last module gaps — Rego emitter, Fluentd shipping, drift-history, Vault backend, OTLP traces, Grafana —
+  are now closed.
+- **What's left is ops, not product:** pointing those adapters at a specific deployment (a live Vault, a
+  Prometheus/Grafana stack, an OTel collector) — environment-specific glue done at install time, not new
+  modules.
 
 *Agents do the bureaucracy; humans hold the meaning — and humans hold the keys.*

@@ -6,6 +6,7 @@ export { diff, withinTolerance, describe, escalation } from "./diff.mjs";
 export { psi, klDivergence, klFromSamples, ksStatistic, distributionDrift, edges, binProb } from "./stats.mjs";
 export { evaluateSuite, EXPECTATIONS } from "./expectations.mjs";
 export { Monitor, Alerter, alertmanagerChannel } from "./monitor.mjs";
+export { DriftHistory } from "./history.mjs"; // M18 — drift-history store
 
 // Lantern — Monitoring & drift. Compares a baseline to a current snapshot,
 // ignores numeric moves within tolerance, and gates on anything that drifted.

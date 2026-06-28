@@ -1,0 +1,42 @@
+{
+  "__comment": "M18 — AiGovOps gate dashboard. Import into Grafana; point at a Prometheus scraping the gate's /v1/metrics. Pairs with the OTLP traces (M17) in Jaeger.",
+  "title": "AiGovOps — Governed Core",
+  "tags": ["aigovops", "governance"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "30s",
+  "templating": { "list": [] },
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Gate up",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "fieldConfig": { "defaults": { "mappings": [{ "type": "value", "options": { "1": { "text": "UP", "color": "green" }, "0": { "text": "DOWN", "color": "red" } } }] } },
+      "targets": [{ "expr": "aigovops_up" }]
+    },
+    {
+      "id": 2, "type": "stat", "title": "Conformance suite",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "fieldConfig": { "defaults": { "mappings": [{ "type": "value", "options": { "1": { "text": "PASS", "color": "green" }, "0": { "text": "FAIL", "color": "red" } } }] } },
+      "targets": [{ "expr": "aigovops_conformance_passed" }]
+    },
+    {
+      "id": 3, "type": "gauge", "title": "Decision pass rate",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1 } },
+      "targets": [{ "expr": "aigovops_decisions_pass / clamp_min(aigovops_decisions_total, 1)" }]
+    },
+    {
+      "id": 4, "type": "stat", "title": "Comparisons run",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "targets": [{ "expr": "aigovops_compare_total" }]
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "Decisions over time",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 4 },
+      "targets": [
+        { "expr": "rate(aigovops_decisions_pass[5m])", "legendFormat": "pass/s" },
+        { "expr": "rate(aigovops_decisions_fail[5m])", "legendFormat": "fail/s" }
+      ]
+    }
+  ]
+}

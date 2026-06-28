@@ -7,6 +7,7 @@ export { Ledger } from "./ledger.mjs";
 export { KeyRing } from "./keys.mjs";
 export { toInTotoStatement, toDsseEnvelope, verifyDsse, attest, IN_TOTO_STATEMENT, SLSA_PROVENANCE } from "./attestation.mjs";
 export { evidenceFromMlflow, signMlflowModel } from "./mlflow.mjs";
+export { toFluentdRecord, FluentdSink } from "./fluentd.mjs"; // M18 — log shipping (metadata-only)
 
 // Beacon — Audit & proof. Runs its gate; on PASS, signs a verifiable evidence receipt.
 export function signEvidence(input = {}) {
