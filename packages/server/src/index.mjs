@@ -13,8 +13,13 @@ export function serve({ port = 0 } = {}) {
     try { body = raw ? JSON.parse(raw) : null; } catch { /* leave null */ }
     const url = new URL(req.url, "http://localhost");
     const out = await handle({ method: req.method, path: url.pathname, body });
-    res.writeHead(out.status, { "content-type": "application/json" });
-    res.end(JSON.stringify(out.json));
+    if (out.html != null) {
+      res.writeHead(out.status, { "content-type": "text/html; charset=utf-8" });
+      res.end(out.html);
+    } else {
+      res.writeHead(out.status, { "content-type": "application/json" });
+      res.end(JSON.stringify(out.json));
+    }
   });
   server.listen(port);
   return server;

@@ -1,35 +1,63 @@
-// M9 — the unified gate as a service. Pure request router (testable without a socket).
-// Exposes the whole product surface over one contract any language can call.
+// M9 — the unified gate as a service + the Studio UX surface. Pure request router.
+// Exposes the whole product, and the production capabilities of each version (M6–M9), over one
+// contract any language — or the built-in web Studio — can call.
 import { decide } from "../../gate/src/index.mjs";
 import { improve } from "../../policy-improver/src/index.mjs";
 import { authorPolicy } from "../../gate-author/src/index.mjs";
 import { compare } from "../../side-by-side/src/index.mjs";
+import { compileFrameworkProfile, availableProfiles } from "../../umbrella/src/index.mjs";          // M8
+import { attest, verifyDsse, toInTotoStatement, generateKeypair } from "../../beacon/src/index.mjs"; // M6
+import { distributionDrift } from "../../lantern/src/index.mjs";                                     // M7
+import { runConformance } from "../../conformance/src/index.mjs";                                    // M9
+import { studioHTML } from "./studio.mjs";
 
 export const OPENAPI = {
   openapi: "3.0.0",
   info: { title: "AiGovOps Gate API", version: "4.0.0", description: "Get to YES. Stay at YES. Recover to YES." },
   paths: {
-    "/v1/decide": { post: { summary: "Run the unified gate (criteria → drift → caps → human → sign → broker)" } },
+    "/v1/decide": { post: { summary: "Run the unified gate" } },
     "/v1/improve": { post: { summary: "Improve a written policy against the regulatory corpus" } },
     "/v1/author": { post: { summary: "Author runnable gates from a written policy" } },
     "/v1/compare": { post: { summary: "Governed vs. ungoverned comparison" } },
+    "/v1/profiles": { post: { summary: "Frameworks available for a context (M8)" } },
+    "/v1/profile": { post: { summary: "Compile a framework profile to runnable gates (M8)" } },
+    "/v1/attest": { post: { summary: "in-toto/SLSA DSSE attestation over a receipt (M6)" } },
+    "/v1/drift": { post: { summary: "Distributional drift: PSI / KL / KS (M7)" } },
+    "/v1/conformance": { get: { summary: "Run the conformance suite (M9)" } },
   },
 };
 
-/** @returns {{status, json}} */
+/** @returns {{status, json?} | {status, html}} */
 export async function handle({ method, path, body } = {}) {
+  if (method === "GET" && (path === "/" || path === "/studio")) return { status: 200, html: studioHTML() };
   if (method === "GET" && path === "/healthz") return { status: 200, json: { ok: true, service: "aigovops-gate", version: "4.0.0" } };
   if (method === "GET" && path === "/openapi.json") return { status: 200, json: OPENAPI };
+  if (method === "GET" && path === "/v1/conformance") return run(() => runConformance());
 
-  if (method === "POST" && path === "/v1/decide") return ok(decide(body || {}));
-  if (method === "POST" && path === "/v1/improve") return ok(improve(body?.policyText || "", body?.context || {}));
-  if (method === "POST" && path === "/v1/author") return ok(authorPolicy(improve(body?.policyText || "", body?.context || {})));
-  if (method === "POST" && path === "/v1/compare") return ok(compare(body || {}));
-
-  return { status: 404, json: { error: "not found" } };
+  if (method !== "POST") return { status: 404, json: { error: "not found" } };
+  const b = body || {};
+  switch (path) {
+    case "/v1/decide": return run(() => decide(b));
+    case "/v1/improve": return run(() => improve(b.policyText || "", b.context || {}));
+    case "/v1/author": return run(() => authorPolicy(improve(b.policyText || "", b.context || {})));
+    case "/v1/compare": return run(() => compare(b));
+    case "/v1/profiles": return run(() => ({ frameworks: availableProfiles(b.context || {}) }));
+    case "/v1/profile": return run(() => compileFrameworkProfile(b.framework, b.context || {}));
+    case "/v1/drift": return run(() => distributionDrift({ baseline: b.baseline, current: b.current, method: b.method || "psi" }));
+    case "/v1/attest": return run(() => attestReceipt(b.receipt));
+    default: return { status: 404, json: { error: "not found" } };
+  }
 }
 
-function ok(json) {
-  try { return { status: 200, json }; }
+function attestReceipt(receipt) {
+  if (!receipt) throw new Error("attest requires a receipt");
+  const { privateKey, publicKey } = generateKeypair();
+  const statement = toInTotoStatement(receipt);
+  const envelope = attest(receipt, privateKey);
+  return { statement, envelope, publicKey, verified: verifyDsse(envelope, publicKey) };
+}
+
+function run(fn) {
+  try { return { status: 200, json: fn() }; }
   catch (e) { return { status: 400, json: { error: e.message } }; }
 }

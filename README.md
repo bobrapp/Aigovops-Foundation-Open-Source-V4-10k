@@ -179,8 +179,13 @@ with a reference **SDK client**. The platform layer also adds durable **persiste
 contract), the **OS-level sandbox** emitters (seccomp · nftables egress · gVisor), a **conformance suite**
 any implementation must pass, and **Docker + Helm** to deploy it.
 
+The same server also hosts the **Studio** — an end-to-end web UX for both protagonists: a *policy author*
+improves a written policy against the corpus (cited gaps, framework starters), and a *developer* authors
+runnable gates, proves them governed-vs-ungoverned, and signs evidence — with each version's production
+capability wired in (M6 attestation · M7 drift · M8 profiles · M9 conformance). Open `/` after starting:
+
 ```bash
-node packages/server/src/cli.mjs     # gate API at http://localhost:8930
+node packages/server/src/cli.mjs     # Studio + gate API at http://localhost:8930  (open / in a browser)
 curl -s localhost:8930/healthz
 curl -s -XPOST localhost:8930/v1/decide -d '{"profile":"baseline","payload":{"model":"claude-opus-4-8","humanApproved":true}}'
 docker build -t aigovops . && docker run -p 8930:8930 aigovops   # or: helm install gate deploy/helm/aigovops

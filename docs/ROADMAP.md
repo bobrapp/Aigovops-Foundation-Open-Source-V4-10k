@@ -60,6 +60,7 @@ persistence, the rest of the modules, and packaging.
 | Capability | Module | Status |
 |---|---|---|
 | Unified gate as a service (HTTP API + SDK client) | `@aigovops/server` + `GateClient` | ✅ |
+| End-to-end **Studio UX** (policy author + developer) | served at `/`, wires M6–M9 in | ✅ |
 | Identity & oversight | **Keycloak** · Backstage/Superset | ✅ adapter + dashboard |
 | Gateway / OS-level sandbox | **Kong/APISIX** + gVisor/seccomp/nftables | ✅ adapter + sandbox emitters |
 | Orchestration | **Airflow / Argo** | ✅ exporter → deploy |
