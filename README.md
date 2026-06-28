@@ -3,6 +3,8 @@
 > **Get to YES. Stay at YES. Recover to YES.**
 > No maybes allowed.
 
+**Live site:** https://bobrapp.github.io/Aigovops-Foundation-Open-Source-V4-10k/
+
 An end-to-end open-source AI governance operations platform built on three
 products — **Beacon** (audit & proof), **Lantern** (monitoring & drift),
 **Umbrella** (policy & gates) — orchestrated by the **Jeeves** manager-agent.

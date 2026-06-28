@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AiGovOps Foundation — Open Source v4</title>
+<meta name="description" content="Get to YES. Stay at YES. Recover to YES. An open-source AI governance operations platform: Beacon, Lantern, Umbrella — orchestrated by Jeeves. No maybes allowed." />
+<meta property="og:title" content="AiGovOps Foundation — Open Source v4" />
+<meta property="og:description" content="Get to YES. Stay at YES. Recover to YES. Beacon · Lantern · Umbrella, orchestrated by Jeeves." />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#070b16; --panel:#0c1430; --panel2:#0f1838;
+    --ink:#e8edf7; --muted:#9aa6c2; --line:rgba(255,255,255,.10);
+    --teal:#39d0c3; --green:#57e08a; --gold:#e7c069; --rose:#ff7a8a;
+    --display:"Fraunces",Georgia,serif; --mono:"DM Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--mono);line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 500px at 80% -10%, rgba(57,208,195,.10), transparent 60%),
+      radial-gradient(800px 600px at -10% 20%, rgba(231,192,105,.06), transparent 55%),
+      linear-gradient(transparent 95%, rgba(255,255,255,.025) 95%),
+      linear-gradient(90deg, transparent 95%, rgba(255,255,255,.025) 95%);
+    background-size:auto,auto,46px 46px,46px 46px;
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+  h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.12;letter-spacing:-.01em}
+
+  header{padding:18px 0;border-bottom:1px solid var(--line);position:sticky;top:0;
+    background:rgba(7,11,22,.82);backdrop-filter:blur(8px);z-index:9}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:18px}
+  .dot{width:11px;height:11px;border-radius:50%;background:var(--teal);box-shadow:0 0 16px var(--teal)}
+  .nav nav a{color:var(--muted);margin-left:18px;font-size:14px}
+  .nav nav a:hover{color:var(--ink);text-decoration:none}
+
+  .hero{padding:84px 0 56px}
+  .eyebrow{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+  .hero h1{font-size:clamp(40px,7vw,76px);margin:.32em 0 .12em}
+  .hero h1 .y{color:var(--green)}
+  .lede{font-size:clamp(17px,2.2vw,21px);color:var(--muted);max-width:680px}
+  .nomaybe{color:var(--rose);font-weight:500}
+  .cta{margin-top:30px;display:flex;gap:12px;flex-wrap:wrap}
+  .btn{display:inline-block;padding:12px 20px;border-radius:11px;font-size:14px;font-weight:500;border:1px solid var(--line)}
+  .btn.primary{background:linear-gradient(180deg,var(--teal),#27a89d);color:#04201d;border-color:transparent}
+  .btn.primary:hover{text-decoration:none;filter:brightness(1.06)}
+  .btn.ghost{color:var(--ink)}
+  .btn.ghost:hover{text-decoration:none;border-color:var(--teal);color:var(--teal)}
+
+  section{padding:46px 0;border-top:1px solid var(--line)}
+  .kicker{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+  h2{font-size:clamp(26px,4vw,38px);margin:.1em 0 .5em}
+  .sub{color:var(--muted);max-width:680px}
+
+  .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin-top:26px}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+    border-radius:16px;padding:22px}
+  .card h3{font-size:21px;margin:0 0 4px}
+  .card .role{font-size:13px;color:var(--gold);letter-spacing:.04em;margin-bottom:10px}
+  .card p{color:var(--muted);font-size:14.5px;margin:0 0 14px}
+  .pill{display:inline-block;font-size:11.5px;letter-spacing:.05em;padding:4px 9px;border-radius:999px;
+    border:1px solid var(--line);color:var(--green)}
+
+  .laws{counter-reset:law;display:grid;gap:14px;margin-top:24px}
+  .law{display:flex;gap:16px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:18px 20px}
+  .law::before{counter-increment:law;content:counter(law);font-family:var(--display);font-weight:700;
+    font-size:26px;color:var(--gold);min-width:30px}
+  .law b{color:var(--ink)}
+  .law span{color:var(--muted);font-size:14.5px}
+
+  /* live gate demo */
+  .demo{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;margin-top:24px}
+  .checks{display:grid;gap:10px;margin:8px 0 18px}
+  .chk{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:11px;padding:11px 14px;cursor:pointer;user-select:none;font-size:14px}
+  .chk input{width:18px;height:18px;accent-color:var(--green);cursor:pointer}
+  .chk .fix{color:var(--muted);font-size:12.5px;margin-left:auto;text-align:right;max-width:48%}
+  .verdict{display:flex;align-items:center;gap:14px;border-radius:13px;padding:16px 18px;border:1px solid var(--line)}
+  .verdict .badge{font-family:var(--display);font-weight:700;font-size:24px;padding:6px 16px;border-radius:10px}
+  .pass .badge{background:rgba(87,224,138,.16);color:var(--green)}
+  .fail .badge{background:rgba(255,122,138,.16);color:var(--rose)}
+  .verdict .msg{font-size:14px;color:var(--muted)}
+  .pass .msg b{color:var(--green)} .fail .msg b{color:var(--rose)}
+  .mit{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+  .mit li{font-size:13px;color:var(--gold);background:rgba(231,192,105,.08);border:1px solid rgba(231,192,105,.2);
+    border-radius:9px;padding:8px 12px}
+  .mit li::before{content:"↻ ";opacity:.8}
+
+  pre{background:#05080f;border:1px solid var(--line);border-radius:12px;padding:16px;overflow:auto;
+    font-size:13px;color:#cdd7ee}
+  .tag{color:var(--teal)}
+
+  footer{border-top:1px solid var(--line);padding:42px 0 60px;color:var(--muted);font-size:14px}
+  .eco{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0 22px}
+  .eco a{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:10px 14px;color:var(--ink);font-size:13.5px}
+  .eco a:hover{border-color:var(--teal);text-decoration:none}
+  .creed{font-family:var(--display);letter-spacing:.04em;color:var(--muted);margin-top:18px;font-size:14px}
+</style>
+</head>
+<body>
+<header><div class="wrap nav">
+  <div class="brand"><span class="dot"></span> AiGovOps&nbsp;Foundation</div>
+  <nav>
+    <a href="#products">Products</a>
+    <a href="#laws">Three Laws</a>
+    <a href="#try">Try the Gate</a>
+    <a href="https://github.com/bobrapp/Aigovops-Foundation-Open-Source-V4-10k">GitHub ↗</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+
+  <section class="hero" style="border-top:none">
+    <div class="eyebrow">Open Source v4 · AI Governance Operations</div>
+    <h1>Get to <span class="y">YES.</span><br/>Stay at <span class="y">YES.</span><br/>Recover to <span class="y">YES.</span></h1>
+    <p class="lede">An end-to-end, open-source platform for governing AI in production — built on three products and orchestrated by a manager-agent. Every control is a gate that answers PASS or FAIL. <span class="nomaybe">No maybes allowed.</span></p>
+    <div class="cta">
+      <a class="btn primary" href="#try">Try the Yes-Gate ↓</a>
+      <a class="btn ghost" href="https://github.com/bobrapp/Aigovops-Foundation-Open-Source-V4-10k">View the source ↗</a>
+    </div>
+  </section>
+
+  <section id="products">
+    <div class="kicker">The platform</div>
+    <h2>Three products, one gate logic</h2>
+    <p class="sub">Each product enforces the same contract — a control either passes or fails, and every failure ships a path back to YES. They share one source of gate logic in <span class="tag">shared/gate.mjs</span>.</p>
+    <div class="grid">
+      <div class="card">
+        <div class="role">Audit &amp; proof</div>
+        <h3>Beacon</h3>
+        <p>Listens, identifies models and patterns, proposes heuristics, and signs verifiable ed25519 evidence receipts you can check offline.</p>
+        <span class="pill">PASS / FAIL — never MAYBE</span>
+      </div>
+      <div class="card">
+        <div class="role">Monitoring &amp; drift</div>
+        <h3>Lantern</h3>
+        <p>Semantic diff, drift detection, change monitoring, and escalation — so a system that reached YES is caught the moment it slips.</p>
+        <span class="pill">PASS / FAIL — never MAYBE</span>
+      </div>
+      <div class="card">
+        <div class="role">Policy &amp; gates</div>
+        <h3>Umbrella</h3>
+        <p>Policy compiler, code gates, automated enforcement, and framework profiles that turn written rules into deterministic checks.</p>
+        <span class="pill">PASS / FAIL — never MAYBE</span>
+      </div>
+    </div>
+    <p class="sub" style="margin-top:22px"><b style="color:var(--ink)">Jeeves</b> — the manager-agent — orchestrates all three gates and reports a single verdict. Agents do the bureaucracy; humans hold the keys.</p>
+  </section>
+
+  <section id="laws">
+    <div class="kicker">The discipline</div>
+    <h2>Three Laws of Gates</h2>
+    <div class="laws">
+      <div class="law"><div><b>Get to YES.</b> <span>Every control has a deterministic pass condition. Ambiguity is a bug.</span></div></div>
+      <div class="law"><div><b>Stay at YES.</b> <span>Continuous monitoring re-runs the gates on every change — drift is caught, not discovered later.</span></div></div>
+      <div class="law"><div><b>Recover to YES.</b> <span>Every FAIL ships a mitigation checklist and an automated path back. A gate never just says no.</span></div></div>
+    </div>
+  </section>
+
+  <section id="try">
+    <div class="kicker">Live</div>
+    <h2>Try the Yes-Gate</h2>
+    <p class="sub">This is the real gate logic from <span class="tag">shared/gate.mjs</span>, running in your browser. Toggle the checks — the verdict is binary, and every failure carries its way back to YES.</p>
+    <div class="demo" id="gate">
+      <div class="checks" id="checks"></div>
+      <div class="verdict" id="verdict"></div>
+      <ul class="mit" id="mit"></ul>
+    </div>
+    <p class="sub" style="margin-top:20px">Same thing in Node, zero dependencies:</p>
+    <pre><span class="tag">import</span> { orchestrate } <span class="tag">from</span> <span style="color:var(--green)">"@aigovops/jeeves"</span>;
+
+orchestrate({
+  beacon:   { configured: <b style="color:var(--green)">true</b>, payload: <span style="color:var(--green)">"evidence"</span> },
+  lantern:  { configured: <b style="color:var(--green)">true</b>, payload: <span style="color:var(--green)">"snapshot"</span> },
+  umbrella: { configured: <b style="color:var(--green)">true</b>, payload: <span style="color:var(--green)">"policy"</span> },
+});
+<span style="color:var(--muted)">// → { status: "PASS", gates: [ … ] }   no maybes</span></pre>
+  </section>
+
+</main>
+
+<footer><div class="wrap">
+  <div class="kicker">Part of the AiGovOps Foundation</div>
+  <div class="eco">
+    <a href="https://aigovops-foundation.github.io/aigovops-library-june-ken-bob/">The Library — governed core ↗</a>
+    <a href="https://github.com/bobrapp/Aigovops-Foundation-Open-Source-V4-10k">This repo on GitHub ↗</a>
+  </div>
+  <div>MIT licensed · Node 20+ · zero runtime dependencies. Co-founded by Bob Rapp &amp; Ken Johnston.</div>
+  <div class="creed">AGENTS DO THE BUREAUCRACY · HUMANS HOLD THE MEANING — AND HUMANS HOLD THE KEYS.</div>
+</div></footer>
+
+<script>
+  // The Yes-Gate — same shape as shared/gate.mjs: PASS only if every check passes.
+  const CHECKS = [
+    { id: "beacon:evidence-present",  label: "Beacon — evidence payload present",     pass: true,  fix: "Provide an evidence payload for Beacon to sign." },
+    { id: "lantern:baseline-known",   label: "Lantern — baseline snapshot on record", pass: true,  fix: "Capture a baseline before drift can be measured." },
+    { id: "umbrella:policy-compiled", label: "Umbrella — policy compiles cleanly",    pass: false, fix: "Fix the policy source so Umbrella can compile it." },
+  ];
+
+  function gate(checks){
+    const failed = checks.filter(c => !c.pass);
+    return {
+      status: failed.length === 0 ? "PASS" : "FAIL",
+      mitigation: failed.map(c => c.fix),
+    };
+  }
+
+  const checksEl = document.getElementById("checks");
+  const verdictEl = document.getElementById("verdict");
+  const mitEl = document.getElementById("mit");
+
+  function render(){
+    checksEl.innerHTML = "";
+    CHECKS.forEach((c, i) => {
+      const row = document.createElement("label");
+      row.className = "chk";
+      row.innerHTML =
+        '<input type="checkbox" ' + (c.pass ? "checked" : "") + ' data-i="' + i + '">' +
+        '<span>' + c.label + '</span>' +
+        '<span class="fix">' + (c.pass ? "" : "needs: " + c.fix) + '</span>';
+      checksEl.appendChild(row);
+    });
+    const r = gate(CHECKS);
+    verdictEl.className = "verdict " + (r.status === "PASS" ? "pass" : "fail");
+    verdictEl.innerHTML =
+      '<span class="badge">' + r.status + '</span>' +
+      '<span class="msg">' + (r.status === "PASS"
+        ? '<b>At YES.</b> Every gate passes — Jeeves reports a single PASS.'
+        : '<b>Not yet.</b> ' + r.mitigation.length + ' gate' + (r.mitigation.length>1?'s':'') + ' failing. Here is the way back:') +
+      '</span>';
+    mitEl.innerHTML = r.status === "PASS" ? "" : r.mitigation.map(m => "<li>" + m + "</li>").join("");
+  }
+
+  checksEl.addEventListener("change", (e) => {
+    const i = e.target.getAttribute("data-i");
+    if (i !== null) { CHECKS[i].pass = e.target.checked; render(); }
+  });
+
+  render();
+</script>
+</body>
+</html>
