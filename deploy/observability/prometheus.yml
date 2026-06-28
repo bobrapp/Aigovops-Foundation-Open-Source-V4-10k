@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: aigovops-gate
+    metrics_path: /v1/metrics          # the gate's Prometheus exposition (M14)
+    static_configs:
+      # the gate, reachable from the Prometheus container. On Docker Desktop use host.docker.internal;
+      # in a shared compose network use the gate's service name (e.g. gate:8930).
+      - targets: ["host.docker.internal:8930"]

@@ -1,0 +1,36 @@
+# M19 ops — the observability stack the Ops agent stands up (reversible; no host, no credentials).
+# `docker compose -f deploy/observability/compose.yml up -d`, then point the gate at the collector:
+#   AIGOVOPS_OTLP_ENDPOINT=http://localhost:4318   (gate exports spans via exportOtlp)
+# Grafana → http://localhost:3000 (admin/admin) · Jaeger → http://localhost:16686 · Prometheus → :9090
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    command: ["--config.file=/etc/prometheus/prometheus.yml"]
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports: ["9090:9090"]
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_SECURITY_ADMIN_PASSWORD: "admin"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../console/grafana-dashboard.json:/var/lib/grafana/dashboards/aigovops.json:ro
+    ports: ["3000:3000"]
+    depends_on: [prometheus]
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports: ["16686:16686"]   # UI
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ./otel-collector.yaml:/etc/otel/config.yaml:ro
+    ports: ["4318:4318", "4317:4317"]  # OTLP http + grpc — the gate exports here
+    depends_on: [jaeger]

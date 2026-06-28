@@ -1,0 +1,21 @@
+receivers:
+  otlp:
+    protocols:
+      http:                      # the gate's exportOtlp() POSTs OTLP/HTTP here (:4318/v1/traces)
+      grpc:
+
+processors:
+  batch:
+
+exporters:
+  otlp/jaeger:
+    endpoint: jaeger:4317        # forward traces to Jaeger's OTLP receiver
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/jaeger]

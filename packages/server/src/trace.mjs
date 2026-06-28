@@ -20,7 +20,17 @@ export function startSpan(name, attributes = {}) {
 }
 
 export function recentSpans(n = 50) { return spans.slice(-n); }
-export function _reset() { spans.length = 0; }
+
+let drained = 0;
+/** Return spans not yet exported, and mark them exported. Resets if the ring wrapped. */
+export function drainSpans() {
+  if (drained > spans.length) drained = 0;
+  const out = spans.slice(drained);
+  drained = spans.length;
+  return out;
+}
+
+export function _reset() { spans.length = 0; drained = 0; }
 
 /** OTLP/HTTP JSON for the OpenTelemetry Collector (/v1/traces) — also consumable by Jaeger's OTLP receiver. */
 export function toOtlp(list = spans) {

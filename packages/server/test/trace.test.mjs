@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { startSpan, recentSpans, toOtlp, exportOtlp, _reset } from "../src/trace.mjs";
+import { startSpan, recentSpans, toOtlp, exportOtlp, drainSpans, _reset } from "../src/trace.mjs";
 
 test("a span is recorded with a duration and status", () => {
   _reset();
@@ -22,6 +22,18 @@ test("toOtlp produces OTLP/HTTP JSON the Collector/Jaeger accept", () => {
   assert.equal(span.name, "POST /v1/decide");
   assert.equal(span.status.code, 1); // OK
   assert.equal(span.attributes[0].key, "path");
+});
+
+test("drainSpans returns only un-exported spans, so the collector sees no duplicates", () => {
+  _reset();
+  startSpan("a").end();
+  startSpan("b").end();
+  assert.equal(drainSpans().length, 2); // first flush sees both
+  assert.equal(drainSpans().length, 0); // nothing new
+  startSpan("c").end();
+  const next = drainSpans();
+  assert.equal(next.length, 1);
+  assert.equal(next[0].name, "c");
 });
 
 test("exportOtlp POSTs to the collector's /v1/traces (injected transport)", async () => {

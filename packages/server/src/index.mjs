@@ -1,12 +1,21 @@
 // M9 — HTTP server (node:http) + the GateClient SDK. Zero-dependency.
 import { createServer } from "node:http";
 import { handle } from "./api.mjs";
-import { startSpan } from "./trace.mjs";
+import { startSpan, drainSpans, exportOtlp } from "./trace.mjs";
 
 export { handle, OPENAPI } from "./api.mjs";
 
 /** Start the gate service. Returns the node:http server (listening on `port`, 0 = ephemeral). */
 export function serve({ port = 0 } = {}) {
+  // M19 — if an OTLP collector is configured, flush this gate's own spans to it periodically.
+  const otlp = process.env.AIGOVOPS_OTLP_ENDPOINT;
+  if (otlp) {
+    const timer = setInterval(() => {
+      const batch = drainSpans();
+      if (batch.length) exportOtlp({ endpoint: otlp, list: batch }).catch(() => {});
+    }, 10_000);
+    if (timer.unref) timer.unref(); // never hold the process open
+  }
   const server = createServer(async (req, res) => {
     let raw = "";
     for await (const chunk of req) raw += chunk;
