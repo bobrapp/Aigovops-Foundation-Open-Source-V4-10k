@@ -1,9 +1,11 @@
 // The regulatory corpus — a structured, citeable index of AI-governance requirements.
 //
-// This is the GI-book "framework map" turned into machine-readable data: facts and public
-// citations (regulation article numbers), NOT any copyrighted prose. It is the knowledge
-// base the Policy-Improver reasons over. SEED corpus — representative, not exhaustive;
-// extend REQUIREMENTS over time. Each entry is independently verifiable against its source.
+// Built only from PRIMARY PUBLIC SOURCES: each entry pairs an ORIGINAL one-line paraphrase
+// (our own words) with a citation to the public regulation or standard (an article number or
+// published-standard reference). No third-party copyrighted text is reproduced. It is the
+// knowledge base the Policy-Improver reasons over. SEED corpus — representative, not
+// exhaustive; extend REQUIREMENTS over time. Each entry is independently verifiable against
+// its primary source.
 //
 // requirement = {
 //   id, framework, citation, title, summary,

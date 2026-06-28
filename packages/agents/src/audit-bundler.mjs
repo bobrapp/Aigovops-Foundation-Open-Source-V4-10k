@@ -1,5 +1,5 @@
 // Tier-1 agent: Audit-Bundler.
-// Reads the oversight ledger and produces the auditor's report (the GI book's Appendix-D shape):
+// Reads the oversight ledger and produces a standard auditor's report:
 // totals, a breakdown by verdict and by cited regulation, signed for tamper-evidence.
 import { signEvidence } from "../../beacon/src/index.mjs";
 
