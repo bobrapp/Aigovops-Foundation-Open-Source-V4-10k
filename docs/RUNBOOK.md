@@ -46,6 +46,22 @@ aigovops-ops --host vps --domain app.aigovops.org --desktop --saas --npm
 access, creating a host, changing DNS, flipping the switch. Everything that used to be a credential paste
 is now a one-time 1Password entry the agent reads on every run.
 
+## Ready-for-Human gates (M22)
+
+Every step is engineered ahead of time, so a gate is never "go figure this out" — it's "click this."
+`prepareStep` stages each step with its exact command, prefilled config, deep-link, and computed values,
+backed by real artifacts in `deploy/`:
+
+| gate | what's staged for you |
+|---|---|
+| Publish the image | the package settings deep-link + a ready `gh api … visibility=public` command |
+| Provision the host | `deploy/provision/cloud-init.yaml` (prefilled) + the cloud console new-droplet link |
+| Point the domain | the exact A record computed from the provisioned IP (`app.aigovops.org → <ip>`, TTL 300) |
+| Go live | a green preflight (`/healthz`, `/v1/conformance`, TLS) before the one irreversible click |
+
+The auto steps in between carry their runnable command and pull credentials from 1Password. The
+`/approvals` console shows a `READY` badge on every step — nothing left to prepare, only your decision.
+
 ## Why this shape
 
 It's the project's core principle applied to its own operations: **agents do the bureaucracy; humans hold

@@ -13,6 +13,8 @@
  * @param {{registryPublic?:boolean, host?:"none"|"vps"|"cloud", domain?:string, desktop?:boolean, saas?:boolean, npm?:boolean}} [opts]
  * @returns {{steps: Array<{id,title,kind:"auto"|"gate",milestone,detail,humanAction}>}}
  */
+export { prepareStep, prepareAll, readyForHuman, IMAGE_REF } from "./prepare.mjs"; // M22 — Ready-for-Human gates
+
 export function opsPlan({ registryPublic = true, host = "none", domain = null, desktop = false, saas = false, npm = false } = {}) {
   const steps = [];
   // needs = 1Password item titles the step's executor will resolve through the governed broker.

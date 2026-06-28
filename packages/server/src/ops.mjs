@@ -2,7 +2,7 @@
 // OpsAgent in the gate process: real Approve buttons advance the real state machine. The agent
 // auto-runs every reversible step and stops at the four human gates. Credentials are shown as
 // 1Password chips (resolved by the runbook at execution time; the console drives the approvals).
-import { opsPlan, OpsAgent } from "../../ops-agent/src/index.mjs";
+import { opsPlan, OpsAgent, prepareStep } from "../../ops-agent/src/index.mjs";
 
 let agent, lastRun;
 
@@ -21,6 +21,7 @@ function view() {
     id: s.id, title: s.title, kind: s.kind, milestone: s.milestone, needs: s.needs || [],
     detail: s.detail, humanAction: s.humanAction,
     status: done.has(s.id) ? "done" : s.id === gate ? "active" : "pending",
+    prepared: prepareStep(s, { domain: "app.aigovops.org" }), // M22 — everything staged ahead of the gate
   }));
   const gates = steps.filter((s) => s.kind === "gate");
   return {
@@ -57,6 +58,10 @@ export function opsConsoleHTML() {
   .who{font-size:11px;color:var(--mut);padding-top:8px;white-space:nowrap}
   .cred{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--mut);background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:2px 8px;margin:6px 6px 0 0}
   .act{font-size:13px;color:var(--mut);margin:9px 0 0}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--mut);background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:5px 9px;margin-top:7px;overflow-x:auto;white-space:nowrap}
+  .rdy{font-size:10px;color:var(--teal);margin-top:3px;text-transform:uppercase;letter-spacing:.06em}
+  .open{display:inline-block;margin:11px 10px 0 0;text-decoration:none;color:var(--mut);border:1px solid var(--line);border-radius:9px;padding:9px 14px;font-size:14px}
+  .open:hover{border-color:var(--accent);color:var(--ink)}
   button{margin-top:11px;background:var(--accent);color:#04121f;border:none;border-radius:9px;padding:10px 18px;font-weight:600;font-size:14px;cursor:pointer}
   button:hover{filter:brightness(1.07)}button.ghost{background:transparent;color:var(--mut);border:1px solid var(--line);font-weight:500}
   .done-card{margin-top:16px;text-align:center;background:rgba(29,211,167,.1);border:1px solid var(--teal);border-radius:14px;padding:24px}
@@ -67,7 +72,7 @@ export function opsConsoleHTML() {
 <canvas id="cf"></canvas>
 <div class="wrap">
   <h1><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg> Go-live approvals</h1>
-  <div class="sub">Four approvals are yours. The agent automates everything in between — credentials come from 1Password, never pasted.</div>
+  <div class="sub">Every step is engineered and staged — the exact command, the prefilled config, the precise values. Four approvals are yours; the agent did the rest. Credentials come from 1Password, never pasted.</div>
   <div class="meta"><span id="gatecount">—</span><span id="count">—</span></div>
   <div class="bar"><i id="fill"></i></div>
   <div id="list" style="margin-top:8px"></div>
@@ -86,10 +91,21 @@ function render(s){
   s.steps.forEach(st=>{
     const el=document.createElement('div'); el.className='step '+st.status;
     const creds=(st.needs||[]).map(c=>'<span class="cred"><svg class="ic" viewBox="0 0 24 24"><path d="M12 11V7a4 4 0 00-8 0M5 11h14v9H5z"/></svg>1Password · '+c+'</span>').join('');
+    const p=st.prepared||{};
+    let staged='';
+    if(st.status!=='done'){
+      if(p.command) staged+='<div class="mono">'+p.command+'</div>';
+      if(p.record) staged+='<div class="mono" style="color:var(--teal)">A   '+p.record.name+'   →   '+p.record.value+'   (TTL '+p.record.ttl+')</div>';
+      if(p.preflight) staged+='<div class="mono">preflight · '+p.preflight.join(' · ')+'</div>';
+    }
+    let gateUI='';
+    if(st.status==='active'){
+      const link=p.link?'<a href="'+p.link+'" target="_blank" class="open">Open the exact page</a>':'';
+      gateUI='<div class="act">'+(st.humanAction||'')+'</div>'+link+'<button onclick="approve(\\''+st.id+'\\')">Approve and continue</button>';
+    }
     el.innerHTML='<div class="dot">'+(st.status==='done'?CHK:svg(ICON[st.id]||'M12 6v12'))+'</div>'+
-      '<div style="flex:1;min-width:0"><div class="t">'+st.title+'</div><div class="d">'+st.detail+'</div>'+creds+
-      (st.status==='active'?'<div class="act">'+(st.humanAction||'')+'</div><button onclick="approve(\\''+st.id+'\\')">Approve and continue</button>':'')+
-      '</div><div class="who">'+(st.kind==='gate'?'you':'agent')+'</div>';
+      '<div style="flex:1;min-width:0"><div class="t">'+st.title+'</div><div class="d">'+st.detail+'</div>'+creds+staged+gateUI+
+      '</div><div class="who">'+(st.kind==='gate'?'you':'agent')+(st.status!=='done'?'<div class="rdy">ready</div>':'')+'</div>';
     list.appendChild(el);
   });
   const d=document.getElementById('done');

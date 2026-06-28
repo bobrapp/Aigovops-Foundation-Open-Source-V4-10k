@@ -1,7 +1,7 @@
 # AiGovOps v4 — Milestones
 
 The full build, milestone by milestone. Every one was tested, shipped to `main`, and verified
-(CI + Pages green). End state: **28 workspaces · 183 tests · zero runtime dependencies · MIT · public**.
+(CI + Pages green). End state: **28 workspaces · 188 tests · zero runtime dependencies · MIT · public**.
 
 ## Phase 0 — Foundation
 | | What shipped |
@@ -47,6 +47,7 @@ The full build, milestone by milestone. Every one was tested, shipped to `main`,
 | **M19** | The Ops agent (Jeeves-managed) | `@aigovops/ops-agent` — the remaining **ops** work (publish · observability · provision · deploy · desktop · billing · npm · DNS · go-live) as a state machine that **auto-runs everything reversible and stops at every irreversible human gate**. Registered as a Jeeves sub-agent (`ops-runner`); `aigovops-ops` CLI. The irreversibility boundary, applied to ops |
 | **M20** | Agent-driven runbook + 1Password | `OpsRunbook` resolves every credential from **1Password** (`OnePasswordProvider`, Connect API) **through the governed broker** (scoped, expiring, single-use grants). Credential-entry is no longer manual — a secret is stored once, read every run. The ship runbook drops from **7 human gates → 4** (only the irreversible/outward ones). The system rule: automate all you can, very little manual. See [RUNBOOK.md](./RUNBOOK.md) |
 | **M21** | The served Approvals console | `GET /approvals` — a delightful, dark, step-by-step approval surface backed by a **live `OpsAgent`** (`/v1/ops/state` · `/v1/ops/approve` · `/v1/ops/reset`). Real Approve buttons advance the real runbook; the agent auto-runs reversible steps between gates; 1Password credential chips; a go-live finish. Verified end-to-end in the browser |
+| **M22** | Ready-for-Human gates | The agent does **all the engineering for every step** ahead of time (`prepareStep`): the exact command, the prefilled config, the deep-link, the computed values — backed by real committed artifacts (`deploy/provision/cloud-init.yaml`, `deploy/scripts/deploy.sh`, `sign-desktop.sh`, `stripe/.env.template`). Auto steps are directly executable; each human gate arrives **fully staged** (open-the-exact-page link, prepared A-record, go-live preflight). The console shows a `READY` badge on every step. Nothing left to prepare — only the irreversible decision |
 
 ## Companion docs
 - **[BLUEPRINT.md](./BLUEPRINT.md)** — the product architecture and grounding

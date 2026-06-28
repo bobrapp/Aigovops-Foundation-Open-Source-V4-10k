@@ -1,0 +1,24 @@
+#cloud-config
+# M22 — the host the agent prepares for you. Boot a fresh Ubuntu droplet with this and it comes up
+# running the governed gate behind Caddy (automatic HTTPS). Your only act: create the host and paste
+# back its IP. Everything below is engineered ahead of time — ready for human.
+package_update: true
+packages: [docker.io, docker-compose-plugin]
+write_files:
+  - path: /opt/aigovops/compose.yml
+    content: |
+      services:
+        gate:
+          image: ghcr.io/bobrapp/aigovops:v4.0.0
+          environment:
+            - PORT=8930
+            - AIGOVOPS_OTLP_ENDPOINT=http://otel-collector:4318
+          restart: always
+        caddy:
+          image: caddy:2
+          command: caddy reverse-proxy --from app.aigovops.org --to gate:8930
+          ports: ["80:80", "443:443"]
+          restart: always
+runcmd:
+  - systemctl enable --now docker
+  - docker compose -f /opt/aigovops/compose.yml up -d
