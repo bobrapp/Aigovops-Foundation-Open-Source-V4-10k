@@ -1,0 +1,8 @@
+{
+  "name": "@aigovops/control-room",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "bin": { "aigovops-control-room": "src/cli.mjs" },
+  "description": "M3 — the Control Room: a role-scoped oversight surface (ledger + role-scoped views + steward kill switch) with a zero-dependency dashboard server."
+}

@@ -1,0 +1,8 @@
+{
+  "name": "@aigovops/install",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "bin": { "aigovops-install": "src/cli.mjs" },
+  "description": "M3 — onboarding installer. Detects the deployment tier and runs the guided first session: identity → caps → policy → gates → proof → cadence."
+}

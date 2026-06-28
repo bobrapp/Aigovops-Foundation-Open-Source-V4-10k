@@ -42,6 +42,8 @@ packages/
   policy-improver/        ← M1 — written policy → corpus → cited gap analysis + candidate gates
   gate-author/            ← M2 — candidate gates → runnable Umbrella policy + Get/Stay/Recover exit states
   side-by-side/           ← M2 — governed vs. ungoverned comparison, with citations
+  install/                ← M3 — onboarding installer: tier detect + guided first session
+  control-room/           ← M3 — role-scoped oversight dashboard (zero-dep node:http server)
 jeeves/  src/index.mjs    ← manager-agent — delegates to @aigovops/gate
 docs/index.html           ← landing page (GitHub Pages) with a live Yes-Gate demo
 .github/workflows/        ← ci.yml (node --test) · pages.yml (deploys docs/)
@@ -100,6 +102,19 @@ compare({ payload: compliantExample(authored.policy), authored });// → governe
 ```
 
 End-to-end demo (prose → gaps → gates → governed/ungoverned): `node packages/side-by-side/src/index.mjs`
+
+## Install + Control Room (M3)
+
+`onboard()` detects the deployment tier (1–6) and runs the guided first session —
+**identity → caps → policy → gates → proof → cadence** — exercising the whole stack and signing an
+onboarding-complete receipt. The **Control Room** is a zero-dependency dashboard whose every view is
+scoped by role: steward sees all + the kill switch + export; auditor sees all + export; developer sees
+gate health; policy-author and member see only their own effects; an unknown role sees nothing (fail-closed).
+
+```bash
+node packages/install/src/cli.mjs          # the guided walkthrough → signed receipt
+node packages/control-room/src/cli.mjs     # dashboard at http://localhost:8920  (?role=steward vs ?role=member)
+```
 
 ## Quick start
 
