@@ -37,13 +37,13 @@ persistence, the rest of the modules, and packaging.
 | Searchable evidence store | **OpenSearch** | ✅ adapter (sink wired) · query API ◻️ |
 | Log shipping | **Fluentd** | ◻️ |
 
-### 🪔 Lantern — monitoring & drift  · **M7**
+### 🪔 Lantern — monitoring & drift  · **M7 ✅ (this release)**
 | Capability | Module | Status |
 |---|---|---|
-| Live metric / trace ingestion | **Prometheus** · **OpenTelemetry** · **Jaeger** | ✅ Prometheus · OTel/Jaeger ◻️ |
-| Statistical / distributional drift (PSI, KL, K-S) | **Evidently** (or zero-dep stats) | ◻️ |
-| Data-quality gates | **Great Expectations** | ◻️ |
-| Continuous monitor loop + alerting | scheduler ✅ + **Alertmanager** | ◻️ alert routing |
+| Live metric / trace ingestion | **Prometheus** · **OpenTelemetry** · **Jaeger** | ✅ Prometheus + Jaeger · OTel ◻️ |
+| Statistical / distributional drift (PSI, KL, K-S) | zero-dep stats (**Evidently**-compatible) | ✅ |
+| Data-quality gates | **Great Expectations**-style suite | ✅ |
+| Continuous monitor loop + alerting | scheduler ✅ + **Alertmanager** | ✅ Monitor + Alertmanager routing |
 | Baseline + drift-history store | OpenSearch / Prometheus | ◻️ |
 
 ### ☂️ Umbrella — policy & gates  · **M8**
@@ -73,7 +73,7 @@ persistence, the rest of the modules, and packaging.
 
 - **~20 open-source modules**, all Apache-2.0 / 10k★ (see `INTEROP.md`). The **primary adapter for each
   product is already built** (OPA → Umbrella, Prometheus → Lantern, OpenSearch → Beacon).
-- **Effort remaining (rough):** M6 ✅ · M7 ~4–5 wk · M8 ~4–5 wk · M9 ~6–8 wk → **~15–20 engineer-weeks**,
+- **Effort remaining (rough):** M6 ✅ · M7 ✅ · M8 ~4–5 wk · M9 ~6–8 wk → **~10–13 engineer-weeks**,
   heavily parallelizable (M7/M8 are independent) and agent-accelerated. End state ≈ **30 packages**, same
   zero-core-dependency discipline, every external module swappable.
 

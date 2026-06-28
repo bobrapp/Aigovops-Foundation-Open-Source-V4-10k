@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  LocalPolicy, OpaPolicy, LocalDrift, PrometheusDrift,
+  LocalPolicy, OpaPolicy, LocalDrift, PrometheusDrift, JaegerTraces,
   KeycloakIdentity, OpenSearchStore, KongGateway, selectBackends, AdapterError,
 } from "../src/index.mjs";
 
@@ -38,6 +38,18 @@ test("PrometheusDrift flags a metric beyond tolerance", async () => {
   const r = await p.check({ query: "cost", baseline: 100, tolerance: 0.05 });
   assert.equal(r.status, "FAIL");
   assert.equal(r.current, 130);
+});
+
+test("JaegerTraces computes a trace error rate", async () => {
+  const t = fake(() => ({ status: 200, json: { data: [
+    { spans: [{ tags: [{ key: "error", value: true }] }] },
+    { spans: [{ tags: [{ key: "http.status", value: 200 }] }] },
+  ] } }));
+  const j = new JaegerTraces({ baseUrl: "http://jaeger", transport: t.transport });
+  const r = await j.errorRate({ service: "gate" });
+  assert.equal(r.total, 2);
+  assert.equal(r.errored, 1);
+  assert.equal(r.rate, 0.5);
 });
 
 test("KeycloakIdentity maps realm roles to our roles", async () => {

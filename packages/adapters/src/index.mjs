@@ -93,6 +93,19 @@ export class PrometheusDrift {
   }
   async health() { return (await call(this, { url: `${this.baseUrl}/-/healthy` })).status === 200; }
 }
+export class JaegerTraces {
+  // Pulls recent traces for a service and reports the error rate — a trace-level drift signal.
+  name = "jaeger";
+  constructor(o = {}) { Object.assign(this, opts(o)); }
+  async errorRate({ service, lookback = "1h" }) {
+    const { status, json } = await call(this, { url: `${this.baseUrl}/api/traces?service=${encodeURIComponent(service)}&lookback=${lookback}` });
+    if (status !== 200 || !json) throw new AdapterError(`Jaeger ${status}`, { status, adapter: this.name });
+    const traces = json.data || [];
+    const errored = traces.filter((t) => (t.spans || []).some((s) => (s.tags || []).some((tag) => tag.key === "error" && tag.value === true))).length;
+    return { service, total: traces.length, errored, rate: traces.length ? errored / traces.length : 0 };
+  }
+  async health() { return (await call(this, { url: `${this.baseUrl}/` })).status < 500; }
+}
 
 // --- Identity (oversight roles) ---------------------------------------------
 export class LocalIdentity {

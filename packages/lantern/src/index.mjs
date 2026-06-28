@@ -2,6 +2,10 @@ import { gate } from "../../../shared/gate.mjs";
 import { diff, withinTolerance, describe, escalation } from "./diff.mjs";
 
 export { diff, withinTolerance, describe, escalation } from "./diff.mjs";
+// Lantern v-next (M7)
+export { psi, klDivergence, klFromSamples, ksStatistic, distributionDrift, edges, binProb } from "./stats.mjs";
+export { evaluateSuite, EXPECTATIONS } from "./expectations.mjs";
+export { Monitor, Alerter, alertmanagerChannel } from "./monitor.mjs";
 
 // Lantern — Monitoring & drift. Compares a baseline to a current snapshot,
 // ignores numeric moves within tolerance, and gates on anything that drifted.
