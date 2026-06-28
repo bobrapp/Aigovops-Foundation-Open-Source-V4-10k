@@ -34,7 +34,7 @@ persistence, the rest of the modules, and packaging.
 | Key rotation (verify across current + retired) | — | ✅ |
 | Standards attestation: in-toto Statement + SLSA provenance, DSSE-signed | **Sigstore/cosign**, **in-toto** | ✅ |
 | Model system-of-record | **MLflow** | ✅ adapter |
-| Searchable evidence store | **OpenSearch** | ✅ adapter (sink wired) · query API ◻️ |
+| Searchable evidence store + query/DSAR | **OpenSearch** sink + the evidence vault | ✅ — hash-chained vault, role-scoped query, signed DSAR bundles (M16) |
 | Log shipping | **Fluentd** | ◻️ |
 
 ### 🪔 Lantern — monitoring & drift  · **M7 ✅ (this release)**

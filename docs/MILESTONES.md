@@ -38,6 +38,11 @@ The full build, milestone by milestone. Every one was tested, shipped to `main`,
 | **M14** | Polished consoles | `@aigovops/tokens` design system · `/v1/metrics` (Prometheus) · Backstage · Superset · Appsmith integration descriptors |
 | **M15** | Hosted open-core SaaS | `@aigovops/{plans,tenancy,billing}` · `/pricing` · per-tenant quotas + Stripe — funds the Foundation, **self-host stays unlimited & free** |
 
+## Phase 4 — Depth
+| | Milestone | What shipped |
+|---|---|---|
+| **M16** | Evidence vault & DSAR | every signed decision appended to a per-tenant, **hash-chained** Beacon ledger in the live gate; role-scoped query (`/v1/evidence`), chain verify, and a **signed audit / DSAR bundle** (`/v1/evidence/bundle`); surfaced in the Studio |
+
 ## Companion docs
 - **[BLUEPRINT.md](./BLUEPRINT.md)** — the product architecture and grounding
 - **[ROADMAP.md](./ROADMAP.md)** — kernel → production v-next, per product
