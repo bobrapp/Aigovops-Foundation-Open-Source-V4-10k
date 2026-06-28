@@ -1,0 +1,34 @@
+# Backstage (Apache-2.0, 34k★) — register the gate as a catalog component with a governance scorecard.
+# Import this URL in Backstage: Settings → Register an existing component.
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: aigovops-gate
+  description: The AiGovOps unified gate — policy-as-code, signed evidence, drift monitoring.
+  annotations:
+    aigovops.org/api: "http://aigovops-gate:8930"
+    aigovops.org/metrics: "http://aigovops-gate:8930/v1/metrics"
+    aigovops.org/conformance: "http://aigovops-gate:8930/v1/conformance"
+  tags: [ai-governance, policy-as-code, audit]
+  links:
+    - url: http://aigovops-gate:8930/studio
+      title: Developer Console
+    - url: http://aigovops-gate:8930/
+      title: Setup Wizard
+spec:
+  type: service
+  lifecycle: production
+  owner: governance
+  providesApis: [aigovops-gate-api]
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: aigovops-gate-api
+  description: Get/Stay/Recover to YES — decide · improve · author · compare.
+spec:
+  type: openapi
+  lifecycle: production
+  owner: governance
+  definition:
+    $text: http://aigovops-gate:8930/openapi.json

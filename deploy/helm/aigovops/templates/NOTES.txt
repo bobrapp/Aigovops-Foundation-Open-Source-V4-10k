@@ -1,0 +1,16 @@
+AiGovOps is installed. Get to YES. Stay at YES. Recover to YES.
+
+1. Studio + Wizard:
+{{- if .Values.ingress.enabled }}
+   https://{{ .Values.ingress.host }}/         (Wizard — policy folks)
+   https://{{ .Values.ingress.host }}/studio   (Console — developers)
+{{- else }}
+   kubectl -n {{ .Release.Namespace }} port-forward svc/{{ .Release.Name }}-gate {{ .Values.service.port }}:{{ .Values.service.port }}
+   then open http://localhost:{{ .Values.service.port }}/
+{{- end }}
+
+2. Health:  curl .../healthz
+3. Metrics: .../v1/metrics   (point Prometheus/Grafana/Superset here)
+
+Running under the {{ .Values.runtimeClassName | default "default" }} runtime, tier {{ .Values.tier }}.
+Agents do the bureaucracy; humans hold the keys.

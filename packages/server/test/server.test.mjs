@@ -40,6 +40,18 @@ test("serves the Wizard at /, the Studio at /studio, and the production endpoint
   assert.equal(conf.conformant, true);                                                    // M9
 });
 
+test("exposes Prometheus governance metrics that count decisions (M14)", async () => {
+  const before = (await handle({ method: "GET", path: "/v1/metrics" })).text;
+  assert.match(before, /aigovops_decisions_total/);
+  assert.match(before, /aigovops_conformance_passed 6/);
+  const n0 = Number(before.match(/aigovops_decisions_total (\d+)/)[1]);
+  await handle({ method: "POST", path: "/v1/decide", body: GOOD });
+  const after = (await handle({ method: "GET", path: "/v1/metrics" })).text;
+  const n1 = Number(after.match(/aigovops_decisions_total (\d+)/)[1]);
+  assert.equal(n1, n0 + 1);                       // the counter incremented
+  assert.match(after, /aigovops_decisions_pass [1-9]/);
+});
+
 test("the live server decides over HTTP and the SDK client round-trips", async () => {
   const server = serve({ port: 0 });
   await once(server, "listening");

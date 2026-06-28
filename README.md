@@ -25,6 +25,11 @@ up, and prints the Studio / API / health URLs.
 - **Jeeves agent-run** → `aigovops setup --target cloud` (M12): proposes the plan, auto-runs everything
   reversible, and pauses at each irreversible **human gate** (provision · account · DNS · go-live).
 
+**Deploy anywhere** (M13): `aigovops deploy render|fly|do|cloud-init [--write]` emits the 1-click descriptor;
+`helm install` (chart in `deploy/helm/`); or the **Tauri** desktop scaffold in `desktop/`. **Consoles** (M14):
+the gate exposes `/v1/metrics` (Prometheus) + `/openapi.json`, so **Backstage · Superset · Appsmith** plug in
+with no custom backend (descriptors in `deploy/console/`); shared design tokens in `@aigovops/tokens`.
+
 An end-to-end open-source AI governance operations platform built on three
 products — **Beacon** (audit & proof), **Lantern** (monitoring & drift),
 **Umbrella** (policy & gates) — orchestrated by the **Jeeves** manager-agent.

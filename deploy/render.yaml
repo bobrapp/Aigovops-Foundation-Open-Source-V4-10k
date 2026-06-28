@@ -1,0 +1,13 @@
+# render.yaml — deploy AiGovOps on Render (1-click blueprint).
+services:
+  - type: web
+    name: aigovops
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    envVars:
+      - key: PORT
+        value: 8930
+      - key: AIGOVOPS_TIER
+        value: 4

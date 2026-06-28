@@ -1,0 +1,11 @@
+# Prometheus scrape config for the gate's governance metrics (/v1/metrics).
+# Prometheus (Apache-2.0, 65k★) → chart in Grafana, or use Superset (Apache-2.0, 74k★) over the same data.
+scrape_configs:
+  - job_name: aigovops-gate
+    metrics_path: /v1/metrics
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["aigovops-gate:8930"]
+        labels: { service: aigovops, layer: governance }
+# Exposed series: aigovops_decisions_total, _pass, _fail, aigovops_improve_total,
+#                 aigovops_compare_total, aigovops_conformance_passed, aigovops_up.

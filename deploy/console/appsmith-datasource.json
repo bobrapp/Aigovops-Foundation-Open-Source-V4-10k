@@ -1,0 +1,17 @@
+{
+  "_comment": "Appsmith (Apache-2.0, 40k★) REST datasource for an admin/operator console over the gate API. Import under Datasources → Authenticated API.",
+  "name": "AiGovOps Gate",
+  "pluginType": "API",
+  "datasourceConfiguration": {
+    "url": "http://aigovops-gate:8930",
+    "headers": [{ "key": "content-type", "value": "application/json" }]
+  },
+  "suggestedActions": [
+    { "name": "decide",  "method": "POST", "path": "/v1/decide" },
+    { "name": "improve", "method": "POST", "path": "/v1/improve" },
+    { "name": "author",  "method": "POST", "path": "/v1/author" },
+    { "name": "profiles","method": "POST", "path": "/v1/profiles" },
+    { "name": "metrics", "method": "GET",  "path": "/v1/metrics" },
+    { "name": "conformance", "method": "GET", "path": "/v1/conformance" }
+  ]
+}

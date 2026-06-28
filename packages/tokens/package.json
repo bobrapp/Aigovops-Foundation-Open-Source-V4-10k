@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/tokens",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "M14 — the design-token system: one source of truth (color · type · spacing · radius · motion) for the Wizard, Studio, desktop app, and consoles. Emits CSS variables."
+}

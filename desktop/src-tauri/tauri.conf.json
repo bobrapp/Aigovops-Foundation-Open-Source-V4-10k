@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "AiGovOps",
+  "version": "4.0.0",
+  "identifier": "org.aigovops.studio",
+  "build": {
+    "beforeDevCommand": "node ../../packages/server/src/cli.mjs",
+    "devUrl": "http://localhost:8930",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      { "title": "AiGovOps", "width": 1120, "height": 820, "minWidth": 720, "minHeight": 600, "url": "http://localhost:8930" }
+    ],
+    "security": { "csp": null }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Business",
+    "shortDescription": "Get your AI governed — no code.",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/icon.icns", "icons/icon.ico"]
+  }
+}

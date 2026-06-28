@@ -1,0 +1,15 @@
+# .do/app.yaml — DigitalOcean App Platform.
+name: aigovops
+services:
+  - name: gate
+    dockerfile_path: Dockerfile
+    http_port: 8930
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    health_check:
+      http_path: /healthz
+    envs:
+      - key: PORT
+        value: 8930
+      - key: AIGOVOPS_TIER
+        value: 4

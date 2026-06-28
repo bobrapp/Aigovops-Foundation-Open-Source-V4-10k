@@ -3,6 +3,7 @@ import { detectTier } from "../../install/src/index.mjs";
 import { servicesFor } from "./compose.mjs";
 
 export { composeFor, composeYaml, caddyfileFor, servicesFor, toYaml } from "./compose.mjs";
+export { deployFor, renderYaml, flyToml, doAppSpec, cloudInit, DEPLOY_TARGETS } from "./deploy.mjs"; // M13
 
 /** 'compose' (full stack, needs Docker) or 'node' (the gate alone, zero-install). */
 export function detectRuntime(env = process.env) {

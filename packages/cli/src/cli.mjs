@@ -6,7 +6,7 @@ import { writeFileSync, mkdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { plan, composeYaml, caddyfileFor } from "./index.mjs";
+import { plan, composeYaml, caddyfileFor, deployFor, DEPLOY_TARGETS } from "./index.mjs";
 import { installPlan, JeevesInstaller, toProposal } from "../../agent-install/src/index.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -37,6 +37,25 @@ if (cmd === "plan") { console.log(JSON.stringify(p, null, 2)); process.exit(0); 
 
 if (cmd === "down") {
   spawnSync("docker", ["compose", "-f", join(repoRoot, "deploy/compose/docker-compose.yml"), "down"], { stdio: "inherit" });
+  process.exit(0);
+}
+
+if (cmd === "deploy") {
+  const target = argv[1] && !argv[1].startsWith("--") ? argv[1] : "render";
+  try {
+    const d = deployFor(target, { port });
+    if (argv.includes("--write")) {
+      const path = join(repoRoot, "deploy", d.filename);
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, d.content);
+      console.log(`wrote deploy/${d.filename}`);
+    } else {
+      console.log(d.content);
+    }
+  } catch (e) {
+    console.error(`${e.message}\nusage: aigovops deploy [${DEPLOY_TARGETS.join("|")}] [--write]`);
+    process.exit(1);
+  }
   process.exit(0);
 }
 

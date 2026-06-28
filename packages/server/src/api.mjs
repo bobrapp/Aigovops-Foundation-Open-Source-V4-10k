@@ -11,6 +11,7 @@ import { distributionDrift } from "../../lantern/src/index.mjs";                
 import { runConformance } from "../../conformance/src/index.mjs";                                    // M9
 import { studioHTML } from "./studio.mjs";
 import { wizardHTML } from "./wizard.mjs"; // M11
+import { inc, renderMetrics } from "./metrics.mjs"; // M14
 
 export const OPENAPI = {
   openapi: "3.0.0",
@@ -35,14 +36,15 @@ export async function handle({ method, path, body } = {}) {
   if (method === "GET" && path === "/healthz") return { status: 200, json: { ok: true, service: "aigovops-gate", version: "4.0.0" } };
   if (method === "GET" && path === "/openapi.json") return { status: 200, json: OPENAPI };
   if (method === "GET" && path === "/v1/conformance") return run(() => runConformance());
+  if (method === "GET" && path === "/v1/metrics") return { status: 200, text: renderMetrics({ aigovops_up: 1, aigovops_conformance_passed: runConformance().passed }) }; // M14
 
   if (method !== "POST") return { status: 404, json: { error: "not found" } };
   const b = body || {};
   switch (path) {
-    case "/v1/decide": return run(() => decide(b));
-    case "/v1/improve": return run(() => improve(b.policyText || "", b.context || {}));
+    case "/v1/decide": return run(() => { const r = decide(b); inc("aigovops_decisions_total"); inc(r.status === "PASS" ? "aigovops_decisions_pass" : "aigovops_decisions_fail"); return r; });
+    case "/v1/improve": return run(() => { inc("aigovops_improve_total"); return improve(b.policyText || "", b.context || {}); });
     case "/v1/author": return run(() => authorPolicy(improve(b.policyText || "", b.context || {})));
-    case "/v1/compare": return run(() => compare(b));
+    case "/v1/compare": return run(() => { inc("aigovops_compare_total"); return compare(b); });
     case "/v1/profiles": return run(() => ({ frameworks: availableProfiles(b.context || {}) }));
     case "/v1/profile": return run(() => compileFrameworkProfile(b.framework, b.context || {}));
     case "/v1/drift": return run(() => distributionDrift({ baseline: b.baseline, current: b.current, method: b.method || "psi" }));

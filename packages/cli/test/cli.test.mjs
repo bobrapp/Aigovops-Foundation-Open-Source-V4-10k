@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { servicesFor, composeFor, composeYaml, caddyfileFor, plan, urlsFor } from "../src/index.mjs";
+import { servicesFor, composeFor, composeYaml, caddyfileFor, plan, urlsFor, deployFor, DEPLOY_TARGETS } from "../src/index.mjs";
 
 test("tier maps to the right backend set", () => {
   assert.deepEqual(servicesFor({ tier: 1 }), []);
@@ -42,4 +42,17 @@ test("plan describes the run without side effects", () => {
 
 test("urlsFor uses https when a domain + caddy are present", () => {
   assert.equal(urlsFor({ withCaddy: true, domain: "g.example" }).api, "https://g.example/v1");
+});
+
+// --- M13: deploy-descriptor generators --------------------------------------
+test("deploy emits the right descriptor per cloud target (health-checked)", () => {
+  assert.deepEqual(DEPLOY_TARGETS.sort(), ["cloud-init", "do", "fly", "render"]);
+  const render = deployFor("render");
+  assert.equal(render.filename, "render.yaml");
+  assert.match(render.content, /healthCheckPath: \/healthz/);
+  assert.match(deployFor("fly").content, /internal_port = 8930[\s\S]*path = "\/healthz"/);
+  assert.match(deployFor("do").content, /dockerfile_path: Dockerfile[\s\S]*http_path: \/healthz/);
+  assert.match(deployFor("cloud-init").content, /^#cloud-config[\s\S]*get\.aigovops\.org \| sh/);
+  assert.equal(deployFor("vps").filename, "cloud-init.yaml"); // alias
+  assert.throws(() => deployFor("heroku"), /unknown target/);
 });

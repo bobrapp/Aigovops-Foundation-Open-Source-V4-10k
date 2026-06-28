@@ -19,3 +19,11 @@ resources:
 
 # The tier (1–6) the install/onboarding flow detects; selects local vs heavyweight adapters.
 tier: 4
+
+# Ingress (TLS via cert-manager or your controller). Disabled by default; port-forward works without it.
+ingress:
+  enabled: false
+  className: ""
+  host: aigovops.example.com
+  tls: true
+  annotations: {}

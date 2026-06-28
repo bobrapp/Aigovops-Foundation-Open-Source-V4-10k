@@ -83,7 +83,17 @@ function scalar(v) {
 export function toYaml(value, indent = 0) {
   const pad = "  ".repeat(indent);
   if (Array.isArray(value)) {
-    return value.map((item) => `${pad}- ${scalar(item)}`).join("\n");
+    return value
+      .map((item) => {
+        if (item && typeof item === "object") {
+          // Block sequence of maps: render the map one level deeper, then turn its first line into "- ".
+          const lines = toYaml(item, indent + 1).split("\n");
+          lines[0] = pad + "- " + lines[0].slice((indent + 1) * 2);
+          return lines.join("\n");
+        }
+        return `${pad}- ${scalar(item)}`;
+      })
+      .join("\n");
   }
   if (value && typeof value === "object") {
     return Object.entries(value)

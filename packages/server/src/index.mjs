@@ -16,6 +16,9 @@ export function serve({ port = 0 } = {}) {
     if (out.html != null) {
       res.writeHead(out.status, { "content-type": "text/html; charset=utf-8" });
       res.end(out.html);
+    } else if (out.text != null) {
+      res.writeHead(out.status, { "content-type": "text/plain; version=0.0.4" });
+      res.end(out.text);
     } else {
       res.writeHead(out.status, { "content-type": "application/json" });
       res.end(JSON.stringify(out.json));
