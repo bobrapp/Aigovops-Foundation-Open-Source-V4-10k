@@ -30,15 +30,33 @@ same `{ status, mitigation }` gate shape — PASS / FAIL, never MAYBE.
 ## Structure
 
 ```
-shared/gate.mjs          ← the Yes-Gate: PASS / FAIL, never MAYBE (single source)
+shared/gate.mjs          ← the Yes-Gate primitive: PASS / FAIL, never MAYBE (single source)
 packages/
+  gate/    src/index.mjs  ← THE unified decision path (M0): the one decide() below
   beacon/  src/sign.mjs   ← ed25519 signing, canonical hashing, offline verify
   lantern/ src/diff.mjs   ← structural + numeric drift engine
   umbrella/src/compile.mjs← policy compiler + evaluator + framework profiles
-jeeves/  src/index.mjs    ← orchestrates Umbrella → Lantern → Beacon
+  caps/    src/index.mjs  ← capability dial (read→propose→act→auto) + hard caps, fail-closed
+  secrets/ src/index.mjs  ← SecretsProvider broker: issue→redeem→revoke; agents never see raw creds
+jeeves/  src/index.mjs    ← manager-agent — delegates to @aigovops/gate
 docs/index.html           ← landing page (GitHub Pages) with a live Yes-Gate demo
 .github/workflows/        ← ci.yml (node --test) · pages.yml (deploys docs/)
 INTEROP.md                ← Apache-2.0 / 10k★ projects that back each component
+```
+
+## The unified gate (M0)
+
+One `decide()` replaces the three gates that had drifted apart across the Library, Omni, and
+this repo. Every effector — in any language, in or out of process — calls the same path:
+
+```
+decide(proposal):
+  1. Umbrella.compile(policy).evaluate(payload)   → criteria           Get to YES
+  2. Lantern.detectDrift(baseline, current)       → drift / escalation  Stay at YES
+  3. human decision (only if irreversible)        → approve | deny      humans hold the keys
+  4. Caps.check(actor, cost)                       → hard ceiling        pause, don't push
+  5. Beacon.sign(decision)                         → receipt (deny too)  proof
+  6. on approve → Secrets.issue(scope, ttl)        → brokered grant      never a raw secret
 ```
 
 ## Quick start

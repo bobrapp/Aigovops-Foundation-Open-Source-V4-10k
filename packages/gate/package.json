@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/gate",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "The unified Yes-Gate: Umbrella criteria → Lantern drift → Caps → human decision → Beacon receipt → Secrets broker. One decide() for every effector."
+}

@@ -1,0 +1,7 @@
+{
+  "name": "@aigovops/caps",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "description": "Capability dial (read→propose→act→auto) + hard caps on spend, rate, and blast radius. Fail-closed."
+}
