@@ -7,6 +7,7 @@ import { converse } from "./converse.mjs";
 import { improve } from "../../packages/policy-improver/src/index.mjs";
 import { authorPolicy } from "../../packages/gate-author/src/index.mjs";
 import { detectDrift } from "../../packages/lantern/src/index.mjs";
+import { opsPlan, toProposal as opsProposal } from "../../packages/ops-agent/src/index.mjs";
 
 // The sub-agent registry — id, tier, trigger keywords, and what each does.
 export const JEEVES_AGENTS = [
@@ -15,6 +16,7 @@ export const JEEVES_AGENTS = [
   { id: "drift-monitor", tier: 1, match: ["drift", "monitor", "baseline", "changed", "regress"], describe: "baseline vs current → drift + escalation" },
   { id: "compliance-attestor", tier: 1, match: ["attest", "evidence", "bundle", "audit", "receipt"], describe: "assemble a signed evidence bundle" },
   { id: "regulation-watch", tier: 1, match: ["watch", "update", "new law", "change in law"], describe: "scan regulation feeds for changes" },
+  { id: "ops-runner", tier: 1, match: ["ops", "deploy", "provision", "release", "publish", "go live", "golive", "desktop", "stripe", "install", "host"], describe: "drive the remaining ops milestones, auto-running the reversible work and pausing at every human gate" },
 ];
 
 /** Pick the sub-agent whose trigger words best match the request. Defaults to policy-improver. */
@@ -41,6 +43,11 @@ export class Jeeves {
     switch (agent) {
       case "gate-author": result = authorPolicy(improve(input.policyText ?? utterance, input.context || {})); break;
       case "drift-monitor": result = detectDrift(input); break;
+      case "ops-runner": {
+        const plan = opsPlan(input.ops || {});
+        result = { plan, proposal: opsProposal(plan), firstGate: plan.steps.find((s) => s.kind === "gate") || null };
+        break;
+      }
       default: result = improve(input.policyText ?? utterance, input.context || {}); // policy-improver et al.
     }
     return { agent, result };

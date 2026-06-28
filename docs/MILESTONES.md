@@ -1,7 +1,7 @@
 # AiGovOps v4 — Milestones
 
 The full build, milestone by milestone. Every one was tested, shipped to `main`, and verified
-(CI + Pages green). End state: **27 workspaces · 160 tests · zero runtime dependencies · MIT · public**.
+(CI + Pages green). End state: **28 workspaces · 174 tests · zero runtime dependencies · MIT · public**.
 
 ## Phase 0 — Foundation
 | | What shipped |
@@ -44,6 +44,7 @@ The full build, milestone by milestone. Every one was tested, shipped to `main`,
 | **M16** | Evidence vault & DSAR | every signed decision appended to a per-tenant, **hash-chained** Beacon ledger in the live gate; role-scoped query (`/v1/evidence`), chain verify, and a **signed audit / DSAR bundle** (`/v1/evidence/bundle`); surfaced in the Studio |
 | **M17** | Depth — secrets · observability · SDK · release | real **Vault/OpenBao** secrets backend (async broker) · **OTLP** self-observability (`/v1/traces` → OTel Collector/Jaeger) · a **Python SDK** that passes cross-language conformance against a live gate · **GHCR image + release** automation (`.github/workflows/release.yml`) + `CHANGELOG.md` |
 | **M18** | Close the last module gaps | authored gates → **real OPA Rego** (`toRego`) · Beacon **Fluentd** log-shipping (metadata-only) · Lantern **`DriftHistory`** (per-field series + stability) · a **Grafana dashboard** for `/v1/metrics`. Every ROADMAP ◻️ is now closed |
+| **M19** | The Ops agent (Jeeves-managed) | `@aigovops/ops-agent` — the remaining **ops** work (publish · observability · provision · deploy · desktop · billing · npm · DNS · go-live) as a state machine that **auto-runs everything reversible and stops at every irreversible human gate**. Registered as a Jeeves sub-agent (`ops-runner`); `aigovops-ops` CLI. The irreversibility boundary, applied to ops |
 
 ## Companion docs
 - **[BLUEPRINT.md](./BLUEPRINT.md)** — the product architecture and grounding

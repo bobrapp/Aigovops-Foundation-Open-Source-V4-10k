@@ -54,5 +54,5 @@ test("Jeeves.manage runs the routed agent; status is role-aware", async () => {
 
   assert.equal(j.status({ role: "steward" }).ledger.visible, 2);
   assert.equal(j.status({ role: "member", actor: "m1" }).ledger.visible, 1);
-  assert.equal(j.status({ tier: 4 }).agents.length, 5);
+  assert.equal(j.status({ tier: 4 }).agents.length, 6); // + the ops-runner (M19)
 });

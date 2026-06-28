@@ -1,0 +1,8 @@
+{
+  "name": "@aigovops/ops-agent",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "bin": { "aigovops-ops": "src/cli.mjs" },
+  "description": "M19 — the Jeeves-managed Ops agent: drives the remaining ops milestones (publish · observability · provision · deploy · desktop · billing · npm · DNS · go-live), auto-running everything reversible and pausing at every irreversible human gate."
+}
