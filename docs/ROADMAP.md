@@ -71,7 +71,7 @@ persistence, the rest of the modules, and packaging.
 
 ## Total — the roadmap is built
 
-- **The entire M0–M9 arc is shipped.** ~30 packages, **120 tests**, **zero runtime dependencies**, every
+- **The entire M0–M9 arc is shipped.** 21 workspaces, **120 tests**, **zero runtime dependencies**, every
   external capability behind a swappable Apache-2.0 adapter.
 - **~20 open-source modules** integrated (see `INTEROP.md`). All three products are production-shaped, and
   the platform layer (gate-as-a-service, persistence, OS sandbox, packaging, conformance) is in place.
