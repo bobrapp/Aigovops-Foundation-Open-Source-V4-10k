@@ -49,6 +49,11 @@ The full build, milestone by milestone. Every one was tested, shipped to `main`,
 | **M21** | The served Approvals console | `GET /approvals` — a delightful, dark, step-by-step approval surface backed by a **live `OpsAgent`** (`/v1/ops/state` · `/v1/ops/approve` · `/v1/ops/reset`). Real Approve buttons advance the real runbook; the agent auto-runs reversible steps between gates; 1Password credential chips; a go-live finish. Verified end-to-end in the browser |
 | **M22** | Ready-for-Human gates | The agent does **all the engineering for every step** ahead of time (`prepareStep`): the exact command, the prefilled config, the deep-link, the computed values — backed by real committed artifacts (`deploy/provision/cloud-init.yaml`, `deploy/scripts/deploy.sh`, `sign-desktop.sh`, `stripe/env.template`). Auto steps are directly executable; each human gate arrives **fully staged** (open-the-exact-page link, prepared A-record, go-live preflight). The console shows a `READY` badge on every step. Nothing left to prepare — only the irreversible decision |
 
+## Phase 5 — Revive & deploy
+| | Milestone | What shipped |
+|---|---|---|
+| **M23** | One-click Studio deploy | The revived core is **deployable to a public, non-production URL in one click**. Root **`render.yaml`** (Render Blueprint, auto-detected) + root **`fly.toml`**, corrected to **`AIGOVOPS_TIER=1`** (the zero-dependency gate/Studio in one container, not the tier-4 sidecar stack) + **`DEPLOY-STUDIO.md`** runbook. The gate-service serves `/` (wizard), `/studio` (developer console), `/v1/decide`; the image builds host-side (no local Docker). Reversible spine verified on `revive/2026-08-anoint`: current-Node parity (193/193), the frozen one-receipt-format contract (`schema/receipt.schema.json`), publish-readiness (28/28), README honesty. Deploy + publish + Omni cutover remain **founder gates**. See [REVIVE.md](../REVIVE.md) · [DEPLOY-STUDIO.md](../DEPLOY-STUDIO.md) |
+
 ## Companion docs
 - **[BLUEPRINT.md](./BLUEPRINT.md)** — the product architecture and grounding
 - **[ROADMAP.md](./ROADMAP.md)** — kernel → production v-next, per product
