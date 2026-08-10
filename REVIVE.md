@@ -51,7 +51,8 @@ the canonical core + product). It changes nothing that reaches production and is
 | **0 · Decide & declare** | ⏳ founder gate — owner not yet named; anoint not ratified |
 | **1 · Revive the repo** | 🟡 in progress — current-Node parity, entry-point smokes, **README honesty reconciled**; license decision + baseline tag pending |
 | **2 · Lock the canonical contract** | ✅ done on this branch — schema frozen, conformance green, verify/pin test added (see below) |
-| **3–7 · publish · gate-service · Omni cutover · fold · lock** | ⏳ gated (see below) |
+| **3 · Publish & distribute** | 🟡 readiness proven — `scripts/publish-check.mjs` → **28/28 publishable, 0 blockers**; actual publish + npm-scope + `get.aigovops.org` are founder gates |
+| **4–7 · gate-service · Omni cutover · fold · lock** | ⏳ gated (Docker image build verified locally; staging/prod deploy + cutover are founder gates) |
 
 ## Pending founder gates — NOT done here (irreversible)
 
