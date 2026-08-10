@@ -24,13 +24,33 @@ the canonical core + product). It changes nothing that reaches production and is
   returns `FAIL` on a non-Claude model and `PASS` + an Ed25519 receipt when compliant. The Studio
   (`/` wizard + `/studio` console) renders and drives the wedge live.
 
+## Phase 2 — the canonical contract, locked on this branch
+
+- **Conformance green.** `runConformance()` → `{ conformant: true, passed: 6, total: 6 }` — the
+  contract any port (in any language) must pass.
+- **Receipt schema frozen.** [`schema/receipt.schema.json`](schema/receipt.schema.json) (machine)
+  + [`docs/RECEIPT-SCHEMA.md`](docs/RECEIPT-SCHEMA.md) (human), derived from the real signer
+  (`packages/beacon/src/sign.mjs`): the six-field signed unit + the ledger's hash-chain envelope.
+- **Verify / drift pin added.** `packages/beacon/test/receipt-schema.test.mjs` (5 checks):
+  a signed receipt validates against the frozen schema, carries **exactly** the frozen field set
+  (any silent format drift fails CI), verifies offline, breaks on tamper, and the canonicalization
+  is order-independent. **Full suite now 193/193** (188 + 5), 0 fail.
+- **⚠️ Cross-system finding (surfaced, not yet resolved).** This repo canonicalizes with
+  **sorted-key `JSON.stringify`**, *not* full **RFC 8785 (JCS)** like the Library's Beacon. They
+  agree on simple objects but can diverge on number formatting / non-ASCII — so a receipt signed by
+  one could fail verification by the other. **Pinning canonicalization to one spec (recommend RFC
+  8785) is a prerequisite for "verified anywhere"** — a T0-DECIDE follow-up, flagged in
+  `docs/RECEIPT-SCHEMA.md`, not changed here.
+- **Corpus-pin:** N/A on this branch — the corpus is embedded in `packages/corpus`. The Omni↔Library
+  corpus-SHA pin is a Phase-5 live-migration concern, not a monorepo one.
+
 ## Anoint checklist status (see `aigovops-library/plan/strategy/anoint-revive-checklist.md`)
 
 | Phase | Status |
 |---|---|
 | **0 · Decide & declare** | ⏳ founder gate — owner not yet named; anoint not ratified |
 | **1 · Revive the repo** | 🟡 in progress — current-Node parity + entry-point smokes **done** on this branch; license/README/tag pending |
-| **2 · Lock the canonical contract** | ⏳ next — freeze the receipt schema doc, run `runConformance()`, add the cross-system verify test |
+| **2 · Lock the canonical contract** | ✅ done on this branch — schema frozen, conformance green, verify/pin test added (see below) |
 | **3–7 · publish · gate-service · Omni cutover · fold · lock** | ⏳ gated (see below) |
 
 ## Pending founder gates — NOT done here (irreversible)
