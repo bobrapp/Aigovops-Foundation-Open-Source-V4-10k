@@ -52,7 +52,8 @@ the canonical core + product). It changes nothing that reaches production and is
 | **1 · Revive the repo** | 🟡 in progress — current-Node parity, entry-point smokes, **README honesty reconciled**; license decision + baseline tag pending |
 | **2 · Lock the canonical contract** | ✅ done on this branch — schema frozen, conformance green, verify/pin test added (see below) |
 | **3 · Publish & distribute** | 🟡 readiness proven — `scripts/publish-check.mjs` → **28/28 publishable, 0 blockers**; actual publish + npm-scope + `get.aigovops.org` are founder gates |
-| **4–7 · gate-service · Omni cutover · fold · lock** | ⏳ gated — **Docker build UNVERIFIED here**: the daemon (colima) is not running on this host, so `docker build` could not run. Dockerfile is present; verify on a host with a live daemon. Staging/prod deploy + cutover are founder gates |
+| **4 · Gate-service deploy** | 🟡 config staged — root `render.yaml` + `fly.toml` (tier 1, one container) + `DEPLOY-STUDIO.md` runbook; the image builds host-side (no local Docker). **Docker build UNVERIFIED locally** (colima daemon down). Connecting the host account + clicking deploy are founder gates |
+| **5–7 · Omni cutover · fold · lock** | ⏳ gated — prod cutover + repo archival are founder gates |
 
 ## Pending founder gates — NOT done here (irreversible)
 
