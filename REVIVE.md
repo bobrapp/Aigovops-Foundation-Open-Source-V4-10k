@@ -49,7 +49,7 @@ the canonical core + product). It changes nothing that reaches production and is
 | Phase | Status |
 |---|---|
 | **0 · Decide & declare** | ⏳ founder gate — owner not yet named; anoint not ratified |
-| **1 · Revive the repo** | 🟡 in progress — current-Node parity + entry-point smokes **done** on this branch; license/README/tag pending |
+| **1 · Revive the repo** | 🟡 in progress — current-Node parity, entry-point smokes, **README honesty reconciled**; license decision + baseline tag pending |
 | **2 · Lock the canonical contract** | ✅ done on this branch — schema frozen, conformance green, verify/pin test added (see below) |
 | **3–7 · publish · gate-service · Omni cutover · fold · lock** | ⏳ gated (see below) |
 
@@ -64,13 +64,19 @@ None of these are touched on this branch; each is a human's explicit move:
 5. **Omni prod cutover** — after a clean shadow-diff + green battery; run as `sudo -u omni`.
 6. **The standing rule** — "one gate, no new parallel gate," enforced like the design-warden.
 
-## README honesty to reconcile (proposed, not yet edited)
+## README honesty — reconciled on this branch (verified first)
 
-The README still states things that are aspirational until Phase 3 lands them — flag as "planned"
-rather than shipping copy that overclaims (estate honesty rule):
-- "**Live site:** https://bobrapp.github.io/…" — verify it actually serves before asserting.
-- `curl -fsSL https://get.aigovops.org | sh` — the domain is unprovisioned.
-- npm install lines — nothing is published yet (all packages `0.1.0`, no `publishConfig`).
+Per the estate "verify before asserting" rule, each claim was checked live before editing:
+- **"Live site" → verified TRUE, kept.** `https://bobrapp.github.io/Aigovops-Foundation-Open-Source-V4-10k/`
+  returns **HTTP 200**. (Verifying first *saved* a real claim from being wrongly softened.)
+- **`get.aigovops.org` installer → false, reconciled.** Domain does **not resolve** (HTTP 000). The
+  `curl | sh` line is now marked *planned*; the working clone command leads.
+- **npm packages → false, reconciled.** Root is `private`, packages `0.1.0`, no `publishConfig` →
+  nothing on npm. A Status note now says so and clarifies the `@aigovops/*` imports resolve in-clone.
+- **Hosted SaaS → qualified.** Billing/tenancy are scaffold-stage; the line now says so (self-host
+  is the only path today).
+
+No claim was softened without checking it; the one true claim was kept.
 
 *Prepared, not executed — humans hold the keys. Branch is local; nothing pushed; production
 untouched.*
