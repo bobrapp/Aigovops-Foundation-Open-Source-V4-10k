@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aigovops.org/schema/beacon-receipt/1",
+  "title": "AiGovOps Beacon receipt",
+  "description": "The canonical signed evidence receipt every AiGovOps gate emits. Verifiable offline with the ed25519 public key. Frozen 2026-08-09 as the one-format contract (Phase 2, anoint revive). Any system that emits or verifies a receipt MUST match this exactly.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "algorithm", "gate", "issuedAt", "evidenceHash", "signature"],
+  "properties": {
+    "schema": {
+      "const": "aigovops.beacon.receipt/1",
+      "description": "Format identifier. Bump the trailing version only on a breaking change."
+    },
+    "algorithm": {
+      "const": "ed25519",
+      "description": "Signature algorithm (RFC 8032)."
+    },
+    "gate": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The gate that issued the receipt (e.g. \"beacon\")."
+    },
+    "issuedAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$",
+      "description": "ISO-8601 UTC timestamp the receipt was signed."
+    },
+    "evidenceHash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Lowercase-hex SHA-256 over the canonical form of the evidence. The payload itself is never included."
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9+/]+={0,2}$",
+      "description": "base64 ed25519 signature over the canonical body (every field except signature)."
+    }
+  }
+}

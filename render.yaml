@@ -1,0 +1,23 @@
+# render.yaml — 1-click Blueprint: deploy the AiGovOps Studio + gate service on Render.
+#
+# Render auto-detects this file at the repo ROOT. It builds ./Dockerfile in Render's
+# cloud (no local Docker needed) and serves the Studio at the assigned https URL:
+#   /         the no-code "Get Governed" wizard
+#   /studio   the developer console (policy-improver + gate-author)
+#   /v1/decide the gate API   ·   /healthz the health check
+#
+# This is a PUBLIC, non-production demo instance: no database, no secrets, no member
+# data. Anyone with the URL can use the wizard — don't enter real personal data, and
+# delete the service after the demo.
+services:
+  - type: web
+    name: aigovops-studio
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free                 # spins down when idle (~30–60s cold start); use "starter" for always-on
+    healthCheckPath: /healthz
+    envVars:
+      - key: PORT
+        value: 8930
+      - key: AIGOVOPS_TIER
+        value: 1               # tier 1 = the zero-dependency gate/Studio in one container

@@ -5,14 +5,21 @@
 
 **Live site:** https://bobrapp.github.io/Aigovops-Foundation-Open-Source-V4-10k/
 
-## Install in one command (M10)
+> **Status (2026-08-09):** self-hostable from a clone today — zero-dependency Node, **193 tests
+> green** (`node --test`). The hosted one-line installer (`get.aigovops.org`) and the published
+> `@aigovops/*` npm packages are **planned, not yet live**: the domain isn't provisioned and nothing
+> is on npm. The `@aigovops/*` import examples below resolve inside a clone via workspaces.
+
+## Install (M10)
 
 ```bash
-curl -fsSL https://get.aigovops.org | sh          # full stack if Docker is present, else the gate alone
-# or, in a clone:
+# from a clone — works today:
 node packages/cli/src/cli.mjs up --tier 4         # gate · Caddy(TLS) · Keycloak · OpenSearch · Prometheus
 node packages/cli/src/cli.mjs up --tier 1         # just the gate (zero dependencies, no Docker)
 node packages/cli/src/cli.mjs doctor              # preflight checks
+
+# planned — not yet live (get.aigovops.org is not provisioned):
+curl -fsSL https://get.aigovops.org | sh          # full stack if Docker is present, else the gate alone
 ```
 
 `aigovops up` detects the tier, generates the Docker Compose stack + a Caddy auto-HTTPS config, brings it
@@ -21,7 +28,7 @@ up, and prints the Studio / API / health URLs.
 **Three ways in** (see **[docs/PRODUCTIZATION.md](docs/PRODUCTIZATION.md)**):
 - **Policy folks** → the no-code **Wizard** at `/` (M11): one decision per screen, ends in a signed
   Compliance Certificate. Developers' console is at `/studio`.
-- **Tech folks** → `aigovops up` / `curl|sh` (M10).
+- **Tech folks** → `aigovops up` from a clone (M10); the hosted `curl | sh` installer is planned.
 - **Jeeves agent-run** → `aigovops setup --target cloud` (M12): proposes the plan, auto-runs everything
   reversible, and pauses at each irreversible **human gate** (provision · account · DNS · go-live).
 
@@ -33,7 +40,8 @@ with no custom backend (descriptors in `deploy/console/`); shared design tokens 
 **Hosted SaaS, open-core** (M15): the platform is **self-hostable forever, free** — the hosted tiers only fund
 the Foundation (Free · Team · Enterprise; **Self-hosted = unlimited**). Off by default; `AIGOVOPS_HOSTED=1`
 turns on per-tenant quotas + Stripe billing. Pricing page at `/pricing`. No lock-in — see
-**[docs/SAAS.md](docs/SAAS.md)**.
+**[docs/SAAS.md](docs/SAAS.md)**. *(Scaffold stage — the billing/tenancy layer is not a live hosted
+service yet; self-host is the only path today.)*
 
 An end-to-end open-source AI governance operations platform built on three
 products — **Beacon** (audit & proof), **Lantern** (monitoring & drift),
