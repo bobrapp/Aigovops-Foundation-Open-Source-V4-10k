@@ -16,8 +16,9 @@ services:
     dockerfilePath: ./Dockerfile
     plan: free                 # spins down when idle (~30–60s cold start); use "starter" for always-on
     healthCheckPath: /healthz
+    # Do NOT set PORT here — Render injects its own $PORT and routes traffic to it; the
+    # server binds process.env.PORT. Hard-coding PORT made the app bind 8930 while Render
+    # routed elsewhere → "x-render-routing: no-server" (the 2026-08-10 first-deploy miss).
     envVars:
-      - key: PORT
-        value: 8930
       - key: AIGOVOPS_TIER
         value: 1               # tier 1 = the zero-dependency gate/Studio in one container
